@@ -19,6 +19,7 @@ static int yCursor = 0;
 static int fgCol = 7;                                                               // Foreground & Background colour
 static int bgCol = 0;
 static bool cursorIsVisible = false;                                                // Cursor visible
+static bool cursorIsEnabled = true;
 
 static int  xLeft = 0,yTop = 0,xRight = 79,yBottom = 29;                            // Text window (these are inclusive values)
 
@@ -56,8 +57,10 @@ void VDUDefineCharacter(int c,uint8_t *gData) {
         for (int i = 0;i < 8;i++) {                                                 // Copy into UDG memory
             udgMemory[(c-0x80)*8+i] = gData[i];
         }
-    }
+    } 
 }
+
+
 /**
  * @brief      Convert a pixel pattern to the byte to write to the plane
  *             adjusting for foreground and background colours.
@@ -314,6 +317,24 @@ static void _VDUDrawCursor(bool isVisible) {
     }
 }
 
+
+/**
+ * @brief      Disable showing of cursor.
+ */
+void VDUDisableCursor(void) {
+  VDUHideCursor();
+  cursorIsEnabled = false;
+}
+
+
+/**
+ * @brief      Enable showing of cursor.
+ */
+void VDUEnableCursor(void) {
+  cursorIsEnabled = true;
+}
+
+
 /**
  * @brief      Hide cursor if displayed.
  */
@@ -327,7 +348,7 @@ void VDUHideCursor(void) {
  * @brief      Show cursor if not already visible
  */
 void VDUShowCursor(void) {
-    if (!cursorIsVisible) {
+    if (!cursorIsVisible && cursorIsEnabled) {
         _VDUDrawCursor(true);
         cursorIsVisible = true;
     }

@@ -65,6 +65,8 @@ void VDUGWriteText(int c);
 void VDUAOutputByte(int x,int y,uint8_t pixelData);
 void VDUHideCursor(void);
 void VDUShowCursor(void);
+void VDUEnableCursor(void);
+void VDUDisableCursor(void);
 
 #define GFXC_NOENDPOINT 	(0x01)
 #define GFXC_DOTTED 		(0x02)

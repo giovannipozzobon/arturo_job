@@ -248,7 +248,7 @@ VARIABLE X4 VARIABLE Y4 \ Coordinates of all 4 corners of the rectangle.
     PAUSE ;
 
 : RUN-DEMO
-  0 MODE \ Tests require mode 0.
+  0 MODE CUROFF \ Tests require mode 0.
   BEGIN 
       COLOURED-TEXT
       POLYGON-CIRCLE-DEMO

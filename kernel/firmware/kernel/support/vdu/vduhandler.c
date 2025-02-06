@@ -165,9 +165,18 @@ void VDUWrite(int c) {
             break;
 
         case 23:                                                                    // 23 c <data> Define user defined graphic
+	  switch(_vduBuffer[0]) {
+	  case 1:
+	    if (_vduBuffer[1])
+	      VDUEnableCursor();
+	    else
+	      VDUDisableCursor();
+	    break;
+	  default:
             VDUDefineCharacter(_vduBuffer[0],_vduBuffer+1);
             break;
-            
+	  }
+	  break;
         case 24:                                                                    // 24 define graphics window
             x1 = _VDUShort(0);y1 = _VDUShort(2);                                    // Get coordinates.
             x2 = _VDUShort(4);y2 = _VDUShort(6);
