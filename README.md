@@ -1,2 +1,2 @@
 # arturo
-RP2040/RP2350 simple kernel
+Arturo is a RISC system designed to run on variants of the Pico
