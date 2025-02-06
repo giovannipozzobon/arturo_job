@@ -42,8 +42,8 @@ int USBUpdate(void) {
  * @return     { description_of_the_return_value }
  */
 int main(int argc,char *argv[]) {
-    DVISetMode(DVI_MODE_640_240_8);                                                 // Initialise display
-    CONWrite(12);                                                                   // Clear the screen
+    VDUWrite(22);VDUWrite(DVI_MODE_640_240_8);                                      // Initialise display
+    HDRDisplay();                                                                   // Display header    
     CONWriteString("Simulator booting\r\n\r\n");
     KBDReceiveEvent(0,0xFF,0);                                                      // Initialise keyboard manager
     FIOInitialise();                                                                // Initialise file system

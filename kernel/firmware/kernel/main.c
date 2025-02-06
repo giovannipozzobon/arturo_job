@@ -19,6 +19,7 @@
 int main() {
 	DVIStart();																	// Start DVI running.
     CONWrite(22);CONWrite(DVI_MODE_640_240_8);                                  // Switch mode.
+    HDRDisplay();                                                               // Display header
     CONWriteString("SRAM memory free %dk\r\n",SRAM_AVAILABLE);                  // Display RAM available.
     SNDInitialise(ARTURO_MONO_SOUND != 0);                                      // Start the sound system, seperate channels according to config.
     SNDMuteAllChannels();                                                       // Mute all channels
