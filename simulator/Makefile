@@ -15,7 +15,7 @@ include ../build_env/config.make
 APPNAME = artsim
 
 TGTBIN = $(BINDIR)$(APPNAME)
-KERNELDIR = $(ROOTDIR)images/firmware/kernel/
+KERNELDIR = $(ROOTDIR)kernel/firmware/kernel/
 
 SOURCE1 = $(shell find -L source -name "*.c")
 SOURCE2 = $(shell find -L $(ARTURO_APP_DIRECTORY) -name "*.c")
@@ -40,7 +40,7 @@ build : setup $(TGTBIN)
 
 setup : .any
 	mkdir -p $(ROOTDIR)bin
-	make -C $(ROOTDIR)images prelim_data
+	make -C $(ROOTDIR)kernel prelim_data
 
 run : build
 	$(TGTBIN)

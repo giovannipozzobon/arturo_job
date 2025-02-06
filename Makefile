@@ -19,7 +19,7 @@ include build_env/config.make
 # ***************************************************************************************
 
 hw:
-	make -C images run
+	make -C kernel run
 
 sw:
 	make -C simulator run

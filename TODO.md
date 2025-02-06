@@ -2,7 +2,7 @@
 
 Outstanding for FORTH bootable :
 
-- memory handling (FORTH), FORTH image is a constant so it's in Flash.
+- Forth namespacing.
 - Remake it a stand alone system.
 
 

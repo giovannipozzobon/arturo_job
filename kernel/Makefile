@@ -27,7 +27,7 @@ always:
 CONFIG_OUT_FILE = firmware/kernel/include/support/__config.h
 LOCALE_OUT_FILE = ../include/support/__locale.h
 
-CMAKE_OUT_FILE = $(ROOTDIR)images/firmware/CMakeLists.txt
+CMAKE_OUT_FILE = $(ROOTDIR)kernel/firmware/CMakeLists.txt
 
 prelim_data: $(CONFIG_OUT_FILE)
 	cd firmware/kernel/locale ; $(PYTHON) keymaps.py >$(LOCALE_OUT_FILE)
@@ -37,14 +37,14 @@ prelim: prelim_data bbc_font $(CMAKE_OUT_FILE)
 	rm -f $(BINDIR)*.elf $(BINDIR)*.uf2
 
 bbc_font:
-	cd scripts ; $(PYTHON) makefont.py >$(ROOTDIR)images/firmware/kernel/include/support/font_bbc_8x8.h
+	cd scripts ; $(PYTHON) makefont.py >$(ROOTDIR)kernel/firmware/kernel/include/support/font_bbc_8x8.h
 #
 #		Build the C configuration header file, passing constants into code.
 #
 $(CONFIG_OUT_FILE) : $(BUILDENVDIR)/config.make
 	$(PYTHON) scripts/makeconfig.py '$(CONFIG_DATA)' >$(CONFIG_OUT_FILE)
 #
-#		Create the middle CMakeLists.txt file (in images/firmware) which sets
+#		Create the middle CMakeLists.txt file (in kernel/firmware) which sets
 #		environment variables.
 #
 $(CMAKE_OUT_FILE) : always
