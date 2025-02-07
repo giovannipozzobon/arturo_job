@@ -16,7 +16,7 @@
 struct _ForthState {
    UNS8 *mem;
    UNS32 save_sp,save_ip,save_rp,interrupt;
-
+   char filename[256];
 };
 
 extern struct _ForthState FTH;

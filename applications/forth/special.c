@@ -4,25 +4,22 @@
    There is NO WARRANTY.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "sod32.h"
 #include "common.h"
+#include "sod32.h"
 
 #define SWAP() swap_mem(addr&CELLMASK,len+3);
 #define CLIP() do {addr&=MEMMASK;len&=MEMMASK;if(addr+len>MEMSIZE)len=MEMSIZE-addr;} while(0)
 #define FILEID(n) do{if (((n) & 0x80000000)==0)fp=(n);else fp=0;}while(0);
 
-char filename[256];
+
 
 int make_name(char *addr,UNS32 len)
 {
  int i;
  for(i=0;i<len && i<256;i++) {
-  filename[i]=addr[i];
+  FTH.filename[i]=addr[i];
  }
- filename[i]='\0';
+ FTH.filename[i]='\0';
  return 1; 
 }
 
@@ -122,9 +119,9 @@ void do_os(void)
 	goto end;
       }
       if ((CELL(FTH.save_sp-4) & 2)!= 0)
-	FIOCreateFile(filename);
-      //CONWriteString("Filename: %s\n",filename);
-      fp=FIOOpen(filename);
+	FIOCreateFile(FTH.filename);
+      //CONWriteString("FTH.filename: %s\n",FTH.filename);
+      fp=FIOOpen(FTH.filename);
       //ONWriteString("Open res: %d\n",fp);
       if(fp & 0x80000000)ior=200;
       CELL(FTH.save_sp+4)=fp;                         
@@ -166,7 +163,7 @@ void do_os(void)
    CELL(FTH.save_sp+4)=res;if(res<0) ior=-200;goto end;
   case 13: /*delete-file*/ FTH.save_sp+=4;len=CELL(FTH.save_sp-4);addr=CELL(FTH.save_sp);
     CLIP(); SWAP(); if(!make_name((char*)(FTH.mem+addr),len)) {ior=-202;
-      SWAP(); goto end;} SWAP(); FIODeleteFile(filename); goto end;
+      SWAP(); goto end;} SWAP(); FIODeleteFile(FTH.filename); goto end;
 #if 0			 
  case 14: /*reposition-file*/ save_sp+=8;FILEID(CELL(FTH.save_sp-8)); 
                           fseek(fp,CELL(FTH.save_sp),SEEK_SET);goto end;

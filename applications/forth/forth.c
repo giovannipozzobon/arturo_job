@@ -5,12 +5,9 @@
 */
 
 #include "common.h"
-#include "image_data.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "sod32.h"
+
+#include "image_data.h"
 
 struct _ForthState FTH;
 
@@ -21,8 +18,6 @@ void load_image(void)
   swap_mem(0,len); 
 }
  
-
-
 void ApplicationRun(void)
 {
   FTH.mem = MEMGetMemory();
