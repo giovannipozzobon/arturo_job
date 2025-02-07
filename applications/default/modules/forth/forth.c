@@ -11,16 +11,17 @@
 
 struct _ForthState FTH;
 
-void load_image(void)
+static void load_image(void)
 {
     UNS32 len = sizeof(FTH_image_data);
     memcpy(FTH.mem, FTH_image_data,len);
     FTH_swap_mem(0,len); 
 }
  
-void ApplicationRun(void)
+void FTH_ApplicationRun(void)
 {
-    FTH.mem = MEMGetMemory();
+    FTH.filename = (char *)MEMGetMemory();
+    FTH.mem = MEMGetMemory()+256;
     do {
         load_image();
         FTH_virtual_machine();
