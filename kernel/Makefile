@@ -80,6 +80,7 @@ cleanall: always
 	rm -Rf  build/*
 
 clean: always
+	mkdir -p build
 	cmake --fresh -B build 
 	cmake --build build --target clean
 

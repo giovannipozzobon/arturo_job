@@ -7,7 +7,7 @@
 #include "common.h"
 #include "sod32.h"
 
-#include "image_data.h"
+#include "__image_data.h"
 
 struct _ForthState FTH;
 

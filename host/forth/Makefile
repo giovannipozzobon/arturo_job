@@ -2,7 +2,7 @@ CFLAGS= -O2 # -DBIG_ENDIAN
 # Uncomment -DBIG_ENDIAN for big-endian processors (m68k etc)
 CC=gcc
 
-IMAGETARGET = ../../applications/forth/image_data.h
+IMAGETARGET = ../../applications/default/modules/forth/__image_data.h
 all: sod32 forth.img glossary.txt $(IMAGETARGET)
 
 sod32: engine.o special.o term.o main.o 

@@ -22,7 +22,7 @@ export PICO_DVI_PATH := /aux/builds/PicoDVI/
 #
 #       Directory the App is in.
 #
-ARTURO_APP_DIRECTORY = $(APPDIR)/forth
+ARTURO_APP_DIRECTORY = $(APPDIR)/default
 #
 #       Configure Platform (rp2040,rp2350,rp2350-riscv)
 #

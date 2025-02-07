@@ -11,8 +11,6 @@
 #define CLIP() do {addr&=MEMMASK;len&=MEMMASK;if(addr+len>MEMSIZE)len=MEMSIZE-addr;} while(0)
 #define FILEID(n) do{if (((n) & 0x80000000)==0)fp=(n);else fp=0;}while(0);
 
-
-
 int make_name(char *addr,UNS32 len)
 {
  int i;
