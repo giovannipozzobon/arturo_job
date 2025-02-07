@@ -111,6 +111,10 @@ void ApplicationRun(void) {
     VDUWrite(22);VDUWrite(mode);                                                    // Switch mode
     _GraphicsTest4();
 
+    SNDCHANNEL c;
+    c.type = 0;c.frequency = 440;c.volume = 127;
+    SNDUpdate(0,&c);
+
     while (1) {
   
         n = KBDGetKey();                                                            // Echo any keystroke
