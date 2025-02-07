@@ -76,18 +76,18 @@ void virtual_machine(void)
 {
  register UNS32 sp,rp,ret,ip,ireg,t;
  register UNS32 icount = 0;
- interrupt=0;
+ FTH.interrupt=0;
  rp=MEMSIZE;
  sp=MEMSIZE-1024;
  ip=0;
  for(;;) {     
-  if(interrupt) {
+  if(FTH.interrupt) {
    ireg=1; 
   doint:
    rp-=4;CELL(rp)=ip;
    sp-=4;CELL(sp)=ireg;
-   ip=CELL(interrupt);
-   interrupt=0;
+   ip=CELL(FTH.interrupt);
+   FTH.interrupt=0;
   }
   if (icount++ >= 100000) {
     check_timer();
@@ -131,7 +131,7 @@ void virtual_machine(void)
      case 14:/*lshift*/CELL(sp+4)<<=CELL(sp);sp+=4;break;
      case 15:/*rshift*/CELL(sp+4)>>=CELL(sp);sp+=4;break;
      case 16:/*um/mod*/if(CELL(sp)<=CELL(sp+4)) { /*overflow */
-                         interrupt=8;
+                         FTH.interrupt=8;
                          ireg=((ireg<<1)+1) | ret ;
                          goto doint;
                        }
@@ -167,13 +167,13 @@ void virtual_machine(void)
                           ireg=CELL(sp);sp+=4;
                           goto restart;
                          }
-                         save_sp=sp;save_ip=ip;save_rp=rp;
+                         FTH.save_sp=sp;FTH.save_ip=ip;FTH.save_rp=rp;
                          do_special(t);
 			 icount += 100;
-                         sp=save_sp;ip=save_ip;rp=save_rp;
-			 if (interrupt >= 100)
+                         sp=FTH.save_sp;ip=FTH.save_ip;rp=FTH.save_rp;
+			 if (FTH.interrupt >= 100)
 			   return;
-                         if(interrupt) {
+                         if(FTH.interrupt) {
                           ireg=(((ireg>>5)<<1)+1)|ret; 
                           goto doint;
                          }

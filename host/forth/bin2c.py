@@ -7,7 +7,7 @@ print("""
    FORTH dictionary image as data.
 */
 
-const unsigned char image_data[] = {
+const unsigned char FTH_image_data[] = {
 """)
 
 for i in range(len(blob)):

@@ -13,11 +13,15 @@
 #define MEMSIZE (1*64*1024) /* must be a power of two */
 #define MEMMASK (MEMSIZE-1) /* mask for addresses to force them into range */
 
-extern UNS8 *mem;
+struct _ForthState {
+   UNS8 *mem;
+   UNS32 save_sp,save_ip,save_rp,interrupt;
 
-extern UNS32 save_sp,save_ip,save_rp,interrupt;
+};
 
-#define CELL(reg) (*(UNS32*)(mem+((reg)&MEMMASK)))
+extern struct _ForthState FTH;
+
+#define CELL(reg) (*(UNS32*)(FTH.mem+((reg)&MEMMASK)))
 #define CELLMASK (~3)
 
 #ifdef BIG_ENDIAN
@@ -26,7 +30,7 @@ extern UNS32 save_sp,save_ip,save_rp,interrupt;
  #define BYTEMASK 3
 #endif
 
-#define BYTE(reg) mem[((reg)&MEMMASK)^BYTEMASK]
+#define BYTE(reg) FTH.mem[((reg)&MEMMASK)^BYTEMASK]
 
 void swap_mem(UNS32,UNS32);
 void do_os(void);

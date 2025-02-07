@@ -12,14 +12,12 @@
 #include <string.h>
 #include "sod32.h"
 
-UNS8 *mem;
-
-UNS32 save_sp,save_ip,save_rp,interrupt;
+struct _ForthState FTH;
 
 void load_image(void)
 {
-  UNS32 len = sizeof(image_data);
-  memcpy(mem, image_data,len);
+  UNS32 len = sizeof(FTH_image_data);
+  memcpy(FTH.mem, FTH_image_data,len);
   swap_mem(0,len); 
 }
  
@@ -27,9 +25,9 @@ void load_image(void)
 
 void ApplicationRun(void)
 {
-  mem = MEMGetMemory();
+  FTH.mem = MEMGetMemory();
   do {
     load_image();
     virtual_machine();
-  } while (interrupt != 100);
+  } while (FTH.interrupt != 100);
 }
