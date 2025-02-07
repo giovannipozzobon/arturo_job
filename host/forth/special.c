@@ -10,7 +10,7 @@
 #include "sod32.h"
 
 
-#define SWAP swap_mem(addr&CELLMASK,len+3);
+#define SWAP FTH_swap_mem(addr&CELLMASK,len+3);
 #define CLIP addr&=MEMMASK;len&=MEMMASK;if(addr+len>MEMSIZE)len=MEMSIZE-addr;
 #define FILEID(n) if((n)>=20){ior=-201;goto end;}if(!fileids[n])\
                   {ior=-201;goto end;} fp=fileids[n]; 

@@ -2,5 +2,5 @@
 
 Outstanding for FORTH bootable :
 
-- Forth namespacing.
+- Sound check.
 - Remake it a stand alone system.

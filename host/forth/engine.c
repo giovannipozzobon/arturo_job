@@ -7,7 +7,7 @@
 #include "sod32.h"
 
 /* Perform byte swap of 32-bit words in region of memory of virtual machine*/
-void swap_mem(UNS32 start,UNS32 len) {
+void FTH_swap_mem(UNS32 start,UNS32 len) {
 #ifndef BIG_ENDIAN
  UNS32 i,m;
  for(i=0;i<len;i+=4) {

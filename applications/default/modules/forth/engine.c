@@ -8,7 +8,7 @@
 
 
 /* Perform byte swap of 32-bit words in region of memory of virtual machine*/
-void swap_mem(UNS32 start,UNS32 len) {
+void FTH_swap_mem(UNS32 start,UNS32 len) {
 #ifndef BIG_ENDIAN
  UNS32 i,m;
  for(i=0;i<len;i+=4) {
@@ -72,7 +72,7 @@ static void udiv(UNS32 *a,UNS32 *b,UNS32 *c)
  }
 }
 
-void virtual_machine(void)
+void FTH_virtual_machine(void)
 {
  register UNS32 sp,rp,ret,ip,ireg,t;
  register UNS32 icount = 0;
@@ -90,7 +90,7 @@ void virtual_machine(void)
    FTH.interrupt=0;
   }
   if (icount++ >= 100000) {
-    check_timer();
+    FTH_check_timer();
     icount = 0;
   }
   ireg=CELL(ip);
@@ -168,7 +168,7 @@ void virtual_machine(void)
                           goto restart;
                          }
                          FTH.save_sp=sp;FTH.save_ip=ip;FTH.save_rp=rp;
-                         do_special(t);
+                         FTH_do_special(t);
 			 icount += 100;
                          sp=FTH.save_sp;ip=FTH.save_ip;rp=FTH.save_rp;
 			 if (FTH.interrupt >= 100)

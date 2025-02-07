@@ -32,15 +32,12 @@ extern struct _ForthState FTH;
 
 #define BYTE(reg) FTH.mem[((reg)&MEMMASK)^BYTEMASK]
 
-void swap_mem(UNS32,UNS32);
-void do_os(void);
-void do_special(UNS32);
-void virtual_machine(void);
-void initterm(void);
-void forthterm(void);
-void systerm(void);
-void putch(int);
-int getch(void);
-int kbhit(void);
-void setalarm(unsigned int);
-void check_timer(void);
+void FTH_swap_mem(UNS32,UNS32);
+void FTH_do_os(void);
+void FTH_do_special(UNS32);
+void FTH_virtual_machine(void);
+void FTH_putch(int);
+int FTH_getch(void);
+int FTH_kbhit(void);
+void FTH_set_alarm(unsigned int);
+void FTH_check_timer(void);

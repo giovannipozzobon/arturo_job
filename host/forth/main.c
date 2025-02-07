@@ -21,7 +21,7 @@ void load_image(char *name)
   exit(2);
  }
  len=fread(mem,1,MEMSIZE,infile);
- swap_mem(0,len); 
+ FTH_swap_mem(0,len); 
 }
  
 

@@ -28,7 +28,7 @@ extern UNS32 save_sp,save_ip,save_rp,interrupt;
 
 #define BYTE(reg) mem[((reg)&MEMMASK)^BYTEMASK]
 
-void swap_mem(UNS32,UNS32);
+void FTH_swap_mem(UNS32,UNS32);
 void do_os(void);
 void do_special(UNS32);
 void virtual_machine(void);

@@ -7,7 +7,7 @@
 #include "common.h"
 #include "sod32.h"
 
-#define SWAP() swap_mem(addr&CELLMASK,len+3);
+#define SWAP() FTH_swap_mem(addr&CELLMASK,len+3);
 #define CLIP() do {addr&=MEMMASK;len&=MEMMASK;if(addr+len>MEMSIZE)len=MEMSIZE-addr;} while(0)
 #define FILEID(n) do{if (((n) & 0x80000000)==0)fp=(n);else fp=0;}while(0);
 
@@ -22,25 +22,23 @@ int make_name(char *addr,UNS32 len)
 }
 
 int lastkey;
-int getch(void)
+int FTH_getch(void)
 {
   int k;
   if (lastkey != 0) {
     k=lastkey;
     lastkey = 0;
   } else {
-//    VDUSwitchCursor();
     do {
-      check_timer();
+      FTH_check_timer();
       if (FTH.interrupt == 100) return 0;
       k = KBDGetKey();
     } while (k==0);
-//    VDUSwitchCursor();
   }
   return k;
 }
 
-int kbhit(void)
+int FTH_kbhit(void)
 {
   if (lastkey != 0)
     return -1;
@@ -50,12 +48,12 @@ int kbhit(void)
   };
 }
 
-void putch(int c)
+void FTH_putch(int c)
 {
     VDUWrite(c);
 }
 
-void check_timer(void)
+void FTH_check_timer(void)
 {
     if (HASTICK50_FIRED()) {                                                    // Time to do a 50Hz tick (Don't use this for timing !)
       TICK50_RESET();                                                         // Reset the tick flag
@@ -94,7 +92,7 @@ static char * my_fgets(char *s, unsigned int maxlen, UNS32 f)
 }
 
 
-void do_os(void)
+void FTH_do_os(void)
 {
  UNS32 addr,len,ior=0;
  int res;
@@ -102,9 +100,9 @@ void do_os(void)
  UNS32 code=CELL(FTH.save_sp);FTH.save_sp+=4;
  switch(code) {
   case 0: /*exit*/ FTH.interrupt = 101; break;
-  case 1: /*read char */ FTH.save_sp-=4;CELL(FTH.save_sp)=getch();break; 
-  case 2: /*print char*/ putch(CELL(FTH.save_sp));FTH.save_sp+=4;break;
-  case 3: /*check key */ FTH.save_sp-=4;CELL(FTH.save_sp)=-kbhit();break;
+  case 1: /*read char */ FTH.save_sp-=4;CELL(FTH.save_sp)=FTH_getch();break; 
+  case 2: /*print char*/ FTH_putch(CELL(FTH.save_sp));FTH.save_sp+=4;break;
+  case 3: /*check key */ FTH.save_sp-=4;CELL(FTH.save_sp)=-FTH_kbhit();break;
   case 4: /* set-term */ FTH.save_sp+=4;break;
   case 7: /*open-file*/  FTH.save_sp+=4;len=CELL(FTH.save_sp);addr=CELL(FTH.save_sp+4);
     CLIP(); SWAP(); if(!make_name((char*)(FTH.mem+addr),len)) {
@@ -182,15 +180,15 @@ void do_os(void)
  end: CELL(FTH.save_sp)=ior;
 }
 
-void do_special(UNS32 code) /* execute a special instruction */
+void FTH_do_special(UNS32 code) /* execute a special instruction */
 {
  switch(code) {
   case 0: /* sp@ */ FTH.save_sp-=4;CELL(FTH.save_sp)=FTH.save_sp+4;break;
   case 1: /* sp! */ FTH.save_sp=CELL(FTH.save_sp)&CELLMASK;break;
   case 2: /* rp@ */ FTH.save_sp-=4;CELL(FTH.save_sp)=FTH.save_rp;break;
   case 3: /* rp! */ FTH.save_rp=CELL(FTH.save_sp)&CELLMASK;FTH.save_sp+=4;break;
-  case 32: /* trap0 */ do_os();break; 
-  case 50: /* setalarm */ FTH.save_sp+=4;break;
+  case 32: /* trap0 */ FTH_do_os();break; 
+  case 50: /* FTH_set_alarm */ FTH.save_sp+=4;break;
   case 51: /* getmstimer */ FTH.save_sp-=4;CELL(FTH.save_sp)=TMRReadTimeMS();break;
  }
 }
