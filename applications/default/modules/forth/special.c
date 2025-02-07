@@ -55,21 +55,15 @@ void FTH_putch(int c)
 
 void FTH_check_timer(void)
 {
-    if (HASTICK50_FIRED()) {                                                    // Time to do a 50Hz tick (Don't use this for timing !)
-      TICK50_RESET();                                                         // Reset the tick flag
-      if (USBUpdate() == 0) {
-	FTH.interrupt = 100; return;	
-      }// Update USB
-      KBDCheckTimer();
-      if (KBDEscapePressed(true)) {                                               // Escaped ?
-	FTH.interrupt = 12;
-      } else {
-	FTH.interrupt = 16;
-      }
-    // Check for keyboard repeat
+  if (SYSYield()) {
+    if (!SYSAppRunning()) {
+      FTH.interrupt = 100;
+    } else {
+      FTH.interrupt = KBDEscapePressed(true) ? 12 : 16;
     }
+  }
 }
-  
+
 
 /* Replacement for fgets as the one in AgDev appears to be broken,
    does not detect EOF on real machine */

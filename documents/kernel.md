@@ -79,21 +79,13 @@ This should be used as the basis for time centric code, e.g. sprite moving speed
 
 ## 50Hz Tick
 
-In your main program, there should be a timer tick handler, this is the IF (HASTICK50_FIRED()) part of the test_app.c. This will fire at 50Hz, the speed is not guaranteed.
-
-This should always call *USBUpdate()* which processes USB messages, and if you are using the full keyboard system *KBDCheckTimer()* which is responsible for auto repeating keys.  If you are not using the full keyboard system this function is a no-operation.
-
-On the demo it also writes a full stop.
+*Rewrite tick code*
 
 This is deliberately not done using interrupts as a way of avoiding any issues. I didn't write PicoDVI or tinyusb and it seems to me to be a good idea not to poke them.
 
 ## Application source
 
 Application source can go anywhere, there are examples in the 'applications' directory including the very simple "applications/test_code/kernel".  The location is set in config.make.
-
-## Libraries
-
-The system libraries go in the libraries subdirectory, There is a simple example which prints "Hello world" on the console. These should be picked up automatically. 
 
 ## Configuration
 
@@ -212,6 +204,6 @@ If this is set to true, then reports from unknown devices are dumped on the cons
 
 *Paul Robson paul@robsons.org.uk*
 
-*Last revised 10th January 2025*
+*Last revised 7th February 2025*
 
 ## I
