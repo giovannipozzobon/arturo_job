@@ -12,6 +12,7 @@
 #include "common.h"
 
 struct repeating_timer timer;
+
 bool tick50HzHasFired = false;
 
 /**
@@ -55,5 +56,30 @@ void TMRStartTickInterrupt(void) {
  */
 int TMRReadTimeMS(void) {
     uint32_t time32 = (uint32_t)(time_us_64() >> 9);                            // divide by 512
-    return (time32 * 131) >> 8;                                                // Error of about 0.07%
+    return (time32 * 131) >> 8;                                                 // Error of about 0.07%
 }
+
+/**
+ * @brief      Is the app still running (for simulator)
+ *
+ * @return     true if the app is still running.
+ */
+bool SYSAppRunning(void) {
+    return true;
+}
+
+/**
+ * @brief      Yield, body executed at 50Hz
+ *
+ * @return     true if 50Hz tick occurred.
+ */
+bool SYSYield(void) {
+    if (tick50HzHasFired) {                                                     // Tick set ?
+        tick50HzHasFired = false;
+        KBDCheckTimer();                                                        // Check for keyboard repeat
+        USBUpdate();                                                            // Update USB system.
+        return -1;
+    }
+    return 0;
+}
+

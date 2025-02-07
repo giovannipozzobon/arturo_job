@@ -12,25 +12,35 @@
 
 #include "artsim.h"
 
-bool tick50HzHasFired = true;
+bool isAppRunning = true;
 
 #define FRAME_RATE  (50)
 
 static int nextUpdateTime = 0;
 
-//
-//      Co-opt the USB updating routine, which doesn't happen in the simulator, to 
-//      update the simulator, removing events from the queue and repainting the
-//      display. This is because there is no tick interrupt.
-//
+/**
+ * @brief      Is the app still running (for simulator)
+ *
+ * @return     true if the app is still running.
+ */
+bool SYSAppRunning(void) {
+    return isAppRunning;
+}
 
-int USBUpdate(void) {
-    tick50HzHasFired = true;                                                        // Rigged so we fire every time round the main loop
-    if (TMRReadTimeMS() >= nextUpdateTime) {                                        // So do this to limit the repaint rate to 50Hz.
+
+/**
+ * @brief      Yield, body executed at 50Hz
+ *
+ * @return     true if 50Hz tick occurred.
+ */
+bool SYSYield(void) {
+    if (TMRReadTimeMS() >= nextUpdateTime) {                                    // So do this to limit the repaint rate to 50Hz.
         nextUpdateTime = TMRReadTimeMS()+100/FRAME_RATE;
-        return SYSPollUpdate();                                                     // So we don't update *all* the time
+        if (SYSPollUpdate() == 0) isAppRunning = false;
+        KBDCheckTimer();                                                        // Check for keyboard repeat
+        return true;
     }
-    return -1;
+    return false;
 }
 
 /**

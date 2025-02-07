@@ -19,11 +19,10 @@ void ApplicationRun(void);
 //
 int TMRReadTimeMS(void);
 //
-//      Set every 20ms
+//      Timer Yield function
 //
-extern bool tick50HzHasFired;
+bool SYSYield(void);
 //
-//      Macros for detecting the tick and resetting it.
+//		App still running.
 //
-#define HASTICK50_FIRED()   (tick50HzHasFired)
-#define TICK50_RESET()      { tick50HzHasFired = false; }
+bool SYSAppRunning(void);

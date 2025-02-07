@@ -111,11 +111,11 @@ void ApplicationRun(void) {
     VDUWrite(22);VDUWrite(mode);                                                    // Switch mode
     _GraphicsTest4();
 
-    SNDCHANNEL c;
-    c.type = 0;c.frequency = 440;c.volume = 127;
-    SNDUpdate(0,&c);
+    // SNDCHANNEL c;
+    // c.type = 0;c.frequency = 440;c.volume = 127;
+    // SNDUpdate(0,&c);
 
-    while (1) {
+    while (SYSAppRunning()) {
   
         n = KBDGetKey();                                                            // Echo any keystroke
         if (n != 0) {                                                               // Handle the CR/LF issue.
@@ -136,11 +136,7 @@ void ApplicationRun(void) {
             VDUWriteString("Escape !\r");
         }
 
-        if (HASTICK50_FIRED()) {                                                    // Time to do a 50Hz tick (Don't use this for timing !)
-            TICK50_RESET();                                                         // Reset the tick flag
-            if (USBUpdate() == 0) return;                                           // Update USB
-            KBDCheckTimer();                                                        // Check for keyboard repeat
-            
+        if (SYSYield()) {            
             int x,y,b,w;
             MSEGetState(&x,&y,&b,&w);                                               // Get the mouse state
             if (b != 0) VDUWriteString("Mouse:%d %d %d %d\r",x,y,b,w);              // Show mouse if any button pressed
