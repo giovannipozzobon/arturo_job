@@ -22,8 +22,6 @@ void FTH_ApplicationRun(void)
 {
     FTH.filename = (char *)MEMGetMemory();
     FTH.mem = MEMGetMemory()+256;
-    do {
-        load_image();
-        FTH_virtual_machine();
-    } while (FTH.interrupt != 100);
+    load_image();
+    FTH_virtual_machine();
 }
