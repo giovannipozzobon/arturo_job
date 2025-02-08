@@ -9,6 +9,7 @@
 #include "sod32.h"
 
 UNS8 mem[MEMSIZE+3];
+char *load_filename;
 
 UNS32 save_sp,save_ip,save_rp,interrupt;
 
@@ -29,9 +30,11 @@ void load_image(char *name)
 int main(int argc,char **argv)
 {
  if(argc<2) {
-  fprintf(stderr,"Usage: sod32 <filename>\n");
+  fprintf(stderr,"Usage: sod32 <imfage> [<forthfile>]\n");
   exit(1);
  }
+ if (argc>2)
+   load_filename=argv[2];
  load_image(argv[1]);
  initterm();
  virtual_machine();

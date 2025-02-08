@@ -10,13 +10,14 @@
 #define INT32 int
 #define UNS32 unsigned int
 
-#define MEMSIZE (1*64*1024) /* must be a power of two */
+#define MEMSIZE (1*128*1024) /* must be a power of two */
 #define MEMMASK (MEMSIZE-1) /* mask for addresses to force them into range */
 
 struct _ForthState {
    UNS8 *mem;
    UNS32 save_sp,save_ip,save_rp,interrupt;
    char *filename;
+   char *load_filename;
 };
 
 extern struct _ForthState FTH;

@@ -609,6 +609,9 @@ IMMEDIATE   ---
 Make last definition immediate, so that it will be executed even in
 compilation mode.
 
+INCLUDE   "ccc" ----                                                           
+Open the file with name "ccc" and interpret all lines contained in it.
+
 INCLUDE-BUFFER   --- a-addr                                                    
 This is the buffer where the lines of included files are stored.
 
