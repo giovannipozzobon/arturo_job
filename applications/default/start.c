@@ -59,8 +59,20 @@ void ApplicationRun(void) {
     while (SYSAppRunning()) {
         VDUWrite(42);VDUWrite(32);
         CMDReadLine(inputLine,sizeof(inputLine)-1);
-        if (!CMDRunModules(inputLine)) {
+        if (!CMDExecute(inputLine)) {
             VDUWriteString("Bad command\r\n");
         }
     }
+}
+
+/**
+ * @brief      Execute one CLI command
+ *
+ * @param      cmd   The command text
+ *
+ * @return     true if command executed (may not return)
+ */
+bool CMDExecute(char *cmd) {
+    if (CMDRunModules(cmd)) return true;
+    return CMDCLICommand(cmd);
 }

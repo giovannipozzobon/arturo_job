@@ -11,6 +11,8 @@
 
 #pragma once
 
-typedef void (*APPFUNCTION)(void);
+typedef void (*APPFUNCTION)(char *params);
 
 bool CMDRunModules(char *cmd);
+bool CMDCLICommand(char *cmd);
+bool CMDExecute(char *cmd);

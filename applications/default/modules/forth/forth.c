@@ -18,7 +18,7 @@ static void load_image(void)
     FTH_swap_mem(0,len); 
 }
  
-void FTH_ApplicationRun(void)
+void FTH_ApplicationRun(char *params)
 {
     FTH.filename = (char *)MEMGetMemory();
     FTH.mem = MEMGetMemory()+256;

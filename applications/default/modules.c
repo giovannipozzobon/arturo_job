@@ -12,7 +12,7 @@
 #include "common.h"
 #include "default.h"
 
-void FTH_ApplicationRun(void);
+void FTH_ApplicationRun(char *params);
 
 static void CMDListModules(void);
 
@@ -24,8 +24,7 @@ struct _ModuleList {
     APPFUNCTION startFunction;
 } modules[] = {
     { "forth",FTH_ApplicationRun },
-    { "",CMDListModules },
-    { NULL,NULL }
+    { NULL,NULL }   
 };
 
 /**
@@ -37,9 +36,17 @@ struct _ModuleList {
  */
 bool CMDRunModules(char *cmd) {
     int i = 0;
-    while (modules[i].startFunction != NULL) {
-        if (strcmp(modules[i].moduleName,cmd) == 0) {
-            (*modules[i].startFunction)();
+    int size = 0;
+    if (*cmd == '\0') {                                                             // No command
+        CMDListModules();                                                           // List modules
+        return true;
+    }    
+    while (cmd[size] != '\0' && cmd[size] != ' ') size++;                           // Find length of first word
+    char *params = cmd+size;                                                        // Work out parameters
+    while (*params == ' ') params++;
+    while (modules[i].startFunction != NULL) {                                      // Scan module list
+        if (strncmp(modules[i].moduleName,cmd,size) == 0) {                         // Matches first word
+            (*modules[i].startFunction)(params);                                    // Call handler.
             return true;
         }
         i++;
@@ -49,6 +56,8 @@ bool CMDRunModules(char *cmd) {
 
 /**
  * @brief      List all modules installed.
+ *
+ * @param      params  parameters (will be "")
  */
 static void CMDListModules(void) {
     int i = 0;

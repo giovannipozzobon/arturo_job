@@ -2,4 +2,5 @@
 
 Outstanding for FORTH bootable :
 
-- Remake it a stand alone system.
+- Add CLI parameter to RunApplication()
+
