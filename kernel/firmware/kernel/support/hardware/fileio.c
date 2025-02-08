@@ -154,17 +154,6 @@ int FIODeleteDirectory(char *fileName) {
 }
 
 /**
- * @brief      Change to a new directory
- *
- * @param      fileName  The change (.. /dir dir etc)
- *
- * @return     Error code if non-zero
- */
-int FIOChangeDirectory(char *fileName) {
-    return FSYSChangeDirectory(fileName);
-}
-
-/**
  * @brief      Get information on a file
  *
  * @param      name  The name of the file

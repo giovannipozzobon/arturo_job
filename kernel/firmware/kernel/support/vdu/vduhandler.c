@@ -175,8 +175,8 @@ void VDUWrite(int c) {
             default:
                 VDUDefineCharacter(_vduBuffer[0],_vduBuffer+1);
                 break;
-      }
-      break;
+            }
+            break;
         case 24:                                                                    // 24 define graphics window
             x1 = _VDUShort(0);y1 = _VDUShort(2);                                    // Get coordinates.
             x2 = _VDUShort(4);y2 = _VDUShort(6);
@@ -223,7 +223,7 @@ void VDUWrite(int c) {
             break;
 
         case 127:                                                                   // 127 is destructive backspace
-            VDUWrite(9);VDUWrite(' ');VDUWrite(9);
+            VDUWrite(8);VDUWrite(' ');VDUWrite(8);
             break;
                         
         default:            

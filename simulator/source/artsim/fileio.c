@@ -143,18 +143,6 @@ int FSYSDeleteDirectory(char *name) {
 }                                           
 
 /**
- * @brief      Change to a new directory
- *
- * @param      directory  The directory to change to
- *
- * @return     Error code if non-zero
- */
-int FSYSChangeDirectory(char *directory) {
-    if (chdir(_FSYSMapName(directory)) == 0) return FIO_OK;
-    return _FSYSMapError();
-}
-
-/**
  * @brief      Open File in R/W mode, rewind to start
  *
  * @param[in]  handle  The handle to use
@@ -251,7 +239,8 @@ static DIR* currentDirectory;
  */
 int FSYSOpenDirectory(char *directory) {
     directory = _FSYSMapName(directory);                                            // Map directory
-    currentDirectory = opendir(directory);                                          // Open directory.
+    printf("[%s]\n",directory);
+    currentDirectory = opendir(directory);                                          // Open directory.    
     return (currentDirectory == NULL) ? _FSYSMapError() : FIO_OK;                   // Return OK, or error.
 }
 
@@ -268,8 +257,9 @@ int FSYSReadDirectory(char *fileName) {
         if (errno == 0) return FIO_EOF;                                             // End of directory
         return _FSYSMapError();                                                     // All other errors.
     }
-    next->d_name[MAX_FILENAME_SIZE] = '\0';                                         // Truncate file name.
-    strcpy(fileName,next->d_name);
+    int toCopy = min(MAX_FILENAME_SIZE,strlen(next->d_name));
+    for (int i = 0;i < toCopy;i++) fileName[i] = next->d_name[i];
+    fileName[toCopy] = '\0';
     return FIO_OK;
 }   
 

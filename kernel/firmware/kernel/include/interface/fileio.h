@@ -50,7 +50,6 @@ int     FSYSCreateFile(char *name);                                             
 int     FSYSCreateDirectory(char *name);                                            // Create a directory of that name
 int     FSYSDeleteFile(char *name);                                                 // Delete a file
 int     FSYSDeleteDirectory(char *name);
-int     FSYSChangeDirectory(char *directory);                                       // Change to a new directory
 
 int     FSYSOpenDirectory(char *directory);                                         // Open a directory
 int     FSYSReadDirectory(char *fileName);                                          // Read next directory entry

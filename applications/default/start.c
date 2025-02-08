@@ -36,9 +36,9 @@ static int CMDGetKey(void) {
 static void CMDReadLine(char *buffer,int maxSize) {
     int c,pos = 0;
     while (c = CMDGetKey(), c != 13 && SYSAppRunning()) {
-        if (c == 8 || c == 0x7F) {
+        if (c == CC_BACKSPACE) {
             if (pos > 0) {
-                VDUWrite(0x7F);pos--;
+                VDUWrite(127);pos--;
             }
         } else {
             if (c >= ' ' && pos < maxSize && (c != ' ' || pos != 0)) {
@@ -73,6 +73,12 @@ void ApplicationRun(void) {
  * @return     true if command executed (may not return)
  */
 bool CMDExecute(char *cmd) {
-    if (CMDRunModules(cmd)) return true;
-    return CMDCLICommand(cmd);
+    bool bDone = true;
+    struct DVIModeInformation *dmi = DVIGetModeInformation();
+    if (!CMDRunModules(cmd)) {
+        VDUWrite(17);VDUWrite(dmi->bitPlaneCount > 2 ? 2 : 3);
+        bDone = CMDCLICommand(cmd);
+        VDUWrite(17);VDUWrite(7);
+    }
+    return bDone;
 }

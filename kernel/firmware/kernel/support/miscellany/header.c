@@ -15,5 +15,10 @@
  * @brief      Display the header.
  */
 void HDRDisplay(void) {
-    CONWriteString("*** Arturo Kernel ***\r\n\r\n");
+    CONWriteString("*** Arturo Kernel [pre Alpha 08-02-25] ***\r\n\r\n");
+    CONWriteString("Written by : \r\n");
+    CONWriteString("       Lennart Benschop\r\n");
+    CONWriteString("       Paul Robson\r\n");
+    CONWriteString("Hardware by :\r\n");
+    CONWriteString("       Tsvetan Usunov, Olimex\r\n\r\n");
 }

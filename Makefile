@@ -22,7 +22,7 @@ hw:
 	make -C kernel run
 
 sw:
-	make -C simulator run
+	cd simulator ; make run
 
 #
 #		Build Doxygen documentation

@@ -114,19 +114,6 @@ int FSYSCreateDirectory(char *name) {
     return _FSYSMapError(fr);
 }
 
-
-/**
- * @brief      Change to a new directory
- *
- * @param      directory  The directory to change to
- *
- * @return     Error code if non-zero
- */
-int FSYSChangeDirectory(char *directory) {
-    FRESULT fr = f_chdir(directory);
-    return _FSYSMapError(fr);
-}
-
 /**
  * @brief      Delete directory, ignoring if it does not exist/not empty
  *
