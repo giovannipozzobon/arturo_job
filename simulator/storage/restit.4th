@@ -404,7 +404,7 @@ VARIABLE FREQ
 		ENDCASE  TRUE ;
 
 : INITIALIZE	\ --- ; prepare for playing
-                3 SET-MODE
+                3 SET-MODE CUROFF
                 \ Define the UDGs
                 WALL BR1 BR2 BR3 BR4 BR5 BR6 BR7
                 LEFTARROW RIGHTARROW UPARROW DOWNARROW
