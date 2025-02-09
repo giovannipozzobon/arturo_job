@@ -1573,6 +1573,10 @@ VARIABLE INCLUDE-POINTER ( --- a-addr)
   R> CLOSE-FILE DROP      
 ; 
 
+: INCLUDE ( "ccc" ----)
+\G Open the file with name "ccc" and interpret all lines contained in it.
+    BL WORD COUNT INCLUDED ;
+
 VARIABLE ERRORS ( --- a-addr)
 \G This variable contains the head of a linked list of error messages.
 
@@ -1587,6 +1591,7 @@ VARIABLE ERRORS ( --- a-addr)
 VARIABLE NESTING
 \G Variable to hold nesting for conditional compilation.
 
+VARIABLE COLD-STARTUP
 : QUIT ( --- )
 \G This word resets the return stack, resets the compiler state, the include
 \G buffer and then it reads and interprets terminal input.
@@ -1596,8 +1601,13 @@ VARIABLE NESTING
   INCLUDE-BUFFER INCLUDE-POINTER !  
   32 OPSHIFT ! 
   BEGIN
-   REFILL DROP ['] INTERPRET CATCH DUP 0= IF 
-         DROP STATE @ 0= IF ." OK" THEN CR
+   COLD-STARTUP @ IF
+       POCKET COLD-STARTUP @ COLD-STARTUP OFF ['] INCLUDED
+   ELSE
+       REFILL DROP ['] INTERPRET
+   THEN
+   CATCH DUP 0= IF
+	DROP STATE @ 0= IF ." OK" THEN CR
    ELSE \ throw occured.
      DUP -2 = IF
       ERROR$ @ COUNT TYPE SPACE
@@ -1628,9 +1638,12 @@ VARIABLE NESTING
 : COLD ( --- )
 \G The first word that is called at the start of Forth.
   SP@ S0 !
-  RP@ 4 + R0 ! \ Initialize variables SO and RO 
-  ." Welcome to SOD32 Forth version 0.5" CR
-  ." Copyright 2025 L.C. Benschop GPLv2" CR
+  RP@ 4 + R0 ! \ Initialize variables SO and RO
+  POCKET 256 18 32 SPECIAL COLD-STARTUP !
+  COLD-STARTUP @ 0= IF  
+      ." Welcome to SOD32 Forth version 0.5" CR
+      ." Copyright 2025 L.C. Benschop GPLv2" CR
+  THEN
   WARM ;
 
 END-CROSS

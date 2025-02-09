@@ -64,6 +64,17 @@ void FTH_check_timer(void)
   }
 }
 
+static UNS32 get_cmd_file_name(UNS32 start, UNS32 len)
+{
+  unsigned int namelen=0;
+  if (FTH.load_filename) 
+    namelen=strlen(FTH.load_filename);
+  if (namelen > len)
+    namelen=len;
+  memcpy(FTH.mem+start,FTH.load_filename,namelen);
+  return namelen;
+}
+
 
 /* Replacement for fgets as the one in AgDev appears to be broken,
    does not detect EOF on real machine */
@@ -170,6 +181,10 @@ void FTH_do_os(void)
                           }
                           goto end;
 #endif			  
+ case 18: /* cmd-filename */
+                         FTH.save_sp+=4;len=CELL(FTH.save_sp-4);addr=CELL(FTH.save_sp);
+			 CLIP(); SWAP(); ior=get_cmd_file_name(addr,len);  SWAP();
+    		         goto end;  
  } return;
  end: CELL(FTH.save_sp)=ior;
 }

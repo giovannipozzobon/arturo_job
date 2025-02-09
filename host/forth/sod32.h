@@ -14,6 +14,7 @@
 #define MEMMASK (MEMSIZE-1) /* mask for addresses to force them into range */
 
 extern UNS8 mem[];
+extern char *load_filename;
 
 extern UNS32 save_sp,save_ip,save_rp,interrupt;
 

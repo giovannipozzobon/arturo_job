@@ -30,6 +30,16 @@ int make_name(char *addr,UNS32 len)
  return 1;
 }
 
+UNS32 get_cmd_file_name(UNS32 start, UNS32 len)
+{
+  unsigned int namelen=0;
+  if (load_filename) 
+    namelen=strlen(load_filename);
+  if (namelen > len)
+    namelen=len;
+  memcpy(mem+start,load_filename,namelen);
+  return namelen;
+}
 
 void do_os(void)
 {
@@ -109,7 +119,11 @@ void do_os(void)
                            CELL(save_sp+8)=ftell(fp);CELL(save_sp+4)=0;
                            fseek(fp,oldpos,SEEK_SET);
                           }
-                          goto end;                        
+                          goto end;
+ case 18: /* cmd-filename */
+                         save_sp+=4;len=CELL(save_sp-4);addr=CELL(save_sp);
+			 CLIP SWAP ior=get_cmd_file_name(addr,len);  SWAP
+    		         goto end;  
  } return;
  end: CELL(save_sp)=ior;
 }
