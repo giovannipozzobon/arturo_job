@@ -3,7 +3,11 @@
 : PAUSE
     100 0 DO
 	KEY? IF
-	    KEY DROP LEAVE
+	    KEY $DF AND [CHAR] Q = IF
+		CURON 0 MODE BYE
+	    ELSE
+		LEAVE
+	    THEN
 	THEN	
 	100 MS
     LOOP ;

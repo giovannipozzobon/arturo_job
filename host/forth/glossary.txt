@@ -214,6 +214,9 @@ f is true if and only if x1 is equal to x2.
 >   n1 n2 --- f                                                                
 f is true if and only if the signed number n1 is less than n2. 
 
+>=   n1 n2 --- f                                                               
+f is true if and only if n1 is greater than or equal to n2.
+
 >BODY   xt --- a-addr                                                          
 Convert execution token to parameter field address.
 

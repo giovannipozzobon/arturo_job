@@ -41,6 +41,11 @@ M: <= ( n1 n2 --- f)
 \G f is true if and only if n1 is less than or equal to n2.
   > 0= ;
 
+M: >= ( n1 n2 --- f)
+\G f is true if and only if n1 is greater than or equal to n2.
+  < 0= ;
+
+
 M: 0<= ( n1 --- f)
 \G f is true if and only if n1 is less than zero.
   0 <= ;

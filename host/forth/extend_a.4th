@@ -29,5 +29,7 @@ VARIABLE TIMER
     UNTIL DROP
 ;
 
+' TIMER-INT 16 !
+
 SAVE-SYSTEM forth_a.img
 BYE
