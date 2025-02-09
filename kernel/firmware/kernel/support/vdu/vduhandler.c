@@ -161,7 +161,8 @@ void VDUWrite(int c) {
 
         case 22:                                                                    // 22 n Change mode (MODE)
             VDUHideCursor();
-            _VDUSwitchMode(_vduBuffer[0]);                                          
+            _VDUSwitchMode(_vduBuffer[0]);                                                  VDUEnableCursor();
+    
             break;
 
         case 23:                                                                    // 23 c <data> Define user defined graphic
