@@ -17,8 +17,6 @@ static struct _FileInfo {
 
 #define VALID_AND_OPEN(n) ((n) >= 0 && (n) < FIO_MAX_HANDLES && files[n].isInUse)
 
-
-
 /**
  * @brief      Initialise support I/O
  */
@@ -43,6 +41,7 @@ int FIOOpen(char *fileName) {
     if (i == FIO_MAX_HANDLES) return FIO_ERR_MAXFILES;                              // None found.
     files[i].isInUse = true;
     files[i].isReadOnly = false;
+    fileName = FIOMapFileName(fileName);                                            // Map onto CWD
     res = FSYSOpen(i,fileName);
     if (res<0) {
       files[i].isInUse = false;
@@ -117,6 +116,7 @@ int FIOGetSetPosition(int handle,int newPosition) {
  * @return     Handle or Error code if non-zero
  */
 int FIOCreateFile(char *fileName) {
+    fileName = FIOMapFileName(fileName);                                            // Map onto CWD
     return FSYSCreateFile(fileName);
 }
 
@@ -128,6 +128,7 @@ int FIOCreateFile(char *fileName) {
  * @return     Error code if non-zero
  */
 int FIOCreateDirectory(char *fileName) {
+    fileName = FIOMapFileName(fileName);                                            // Map onto CWD
     return FSYSCreateDirectory(fileName);
 }
 
@@ -139,6 +140,7 @@ int FIOCreateDirectory(char *fileName) {
  * @return     Error code if non-zero
  */
 int FIODeleteFile(char *fileName) {
+    fileName = FIOMapFileName(fileName);                                            // Map onto CWD
     return FSYSDeleteFile(fileName);
 }
 
@@ -150,6 +152,7 @@ int FIODeleteFile(char *fileName) {
  * @return     Error code if non-zero
  */
 int FIODeleteDirectory(char *fileName) {
+    fileName = FIOMapFileName(fileName);                                            // Map onto CWD
     return FSYSDeleteDirectory(fileName);
 }
 
@@ -161,13 +164,14 @@ int FIODeleteDirectory(char *fileName) {
  *
  * @return     Error code if non-zero
  */
-int FIOFileInformation(char *name,FIOInfo *info) {
+int FIOFileInformation(char *fileName,FIOInfo *info) {
     if (info != NULL) {                                                             // FSYSFileInformation doesn't clear FIOInfo
         strcpy(info->name,"?");
         info->length = 0;
         info->isDirectory = false;
     }
-    return FSYSFileInformation(name,info);
+    fileName = FIOMapFileName(fileName);                                            // Map onto CWD
+    return FSYSFileInformation(fileName,info);
 }
 
 
@@ -185,6 +189,7 @@ int FIOFileInformation(char *name,FIOInfo *info) {
  * @return     Error code if non-zero
  */
 int FIOOpenDirectory(char *directory) {
+    directory = FIOMapFileName(directory);                                          // Map onto CWD
     return FSYSOpenDirectory(directory);
 }
 

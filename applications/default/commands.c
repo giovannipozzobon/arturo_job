@@ -32,7 +32,14 @@ bool CMDCLICommand(char *cmd) {
         _CMDCLIDirectory();
         return true;
     }
-
+    if (strcmp(cmd,"pwd") == 0) {                                                   // pwd, print current directory.
+        CONWriteString("%s\r\n",FIOGetCWD());
+        return true;
+    }
+    if (strcmp(cmd,"cd") == 0) {
+        FIOChangeCWD(params);
+        return true;
+    }
     return false;
 }
 
@@ -42,11 +49,18 @@ bool CMDCLICommand(char *cmd) {
 static void _CMDCLIDirectory(void) {
     int e = 0;
     char buffer[MAX_FILENAME_SIZE];
-    int h = FIOOpenDirectory("/");
+    int h = FIOOpenDirectory("");
     while (e = FIOReadDirectory(h,buffer),e == 0) {
-        FIOInfo fInfo;
-        FSYSFileInformation(buffer,&fInfo);
-        CONWriteString("%c %-30s %-6d\r\n",fInfo.isDirectory ? 'D':' ',buffer,fInfo.length);
-    }
+        if (buffer[0] != '.') {
+            FIOInfo fInfo;
+            FSYSFileInformation(buffer,&fInfo);
+            CONWriteString("%-24s ",buffer);
+            if (fInfo.isDirectory) {
+                CONWriteString("<dir>\r\n");
+            } else {
+                CONWriteString("%d\r\n",fInfo.length);
+            }
+        }
+    }    
     FIOCloseDirectory(h);
 }

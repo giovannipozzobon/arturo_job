@@ -30,3 +30,6 @@ int FIOOpenDirectory(char *directory);
 int FIOReadDirectory(int handle,char *fileName); 
 int FIOCloseDirectory(int handle); 
 
+char *FIOMapFileName(char *fileName);
+char *FIOGetCWD(void);
+int FIOChangeCWD(char *d);
