@@ -57,7 +57,7 @@ static int _FSYSMapError(void) {
 static char *_FSYSMapName(char *name) {
     static char buffer[256];
     mkdir("storage",0777);                                                          // Creates the working directory
-    strcpy(buffer,"storage/");strcat(buffer,name);                                  // Convert filename to working file name.
+    strcpy(buffer,"storage");strcat(buffer,name);                                   // Convert filename to working file name.
     return(buffer);
 }
 
@@ -239,7 +239,6 @@ static DIR* currentDirectory;
  */
 int FSYSOpenDirectory(char *directory) {
     directory = _FSYSMapName(directory);                                            // Map directory
-    printf("[%s]\n",directory);
     currentDirectory = opendir(directory);                                          // Open directory.    
     return (currentDirectory == NULL) ? _FSYSMapError() : FIO_OK;                   // Return OK, or error.
 }

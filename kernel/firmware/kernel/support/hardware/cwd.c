@@ -29,7 +29,7 @@ char *FIOMapFileName(char *fileName) {
         strcat(currentDirectory,"/");
     }
     strcat(fileBuffer,fileName);
-    return fileName;
+    return fileBuffer;
 }
 
 /**
@@ -49,6 +49,28 @@ char *FIOGetCWD(void) {
  * @return     non zero if error.
  */
 int FIOChangeCWD(char *d) {
-    printf("[%s]\n",d);
+    if (strcmp(d,".") == 0 || strcmp(d,"") == 0) return 0;                          // . or empty string, no change.
+    if (d[0] == '/') {                                                              // has a /, it's an absolute path
+        strcpy(currentDirectory,d);                                                 // make that the current directory.
+        return 0;
+    }
+    if (strcmp(d,"..") == 0) {                                                      // Up one level.
+        char *lastSlash = currentDirectory;                                         // Find the last slash.
+        char *p = currentDirectory;
+        while (*p != '\0') {
+            if (*p == '/') lastSlash = p;
+            p++;
+        }
+        *lastSlash = '\0';                                                          // Truncate at last slash.
+        if (*currentDirectory == '\0') strcpy(currentDirectory,"/");                // Reached the root ?
+        return 0;
+    }
+
+    char *newDir = FIOMapFileName(d);                                               // Get the new thing switched to.
+    FIOInfo info;
+    int e = FIOFileInformation(newDir,&info);                                       // Try to get information about it.
+    if (e != 0) return e;                                                           // Not found.
+    if (!info.isDirectory) return FIO_ERR_NOTDIR;                                   // Wrong type
+    strcpy(currentDirectory,newDir);                                                // Update cwd
     return 0;
 }

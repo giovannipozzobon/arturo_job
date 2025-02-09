@@ -36,8 +36,9 @@ bool CMDCLICommand(char *cmd) {
         CONWriteString("%s\r\n",FIOGetCWD());
         return true;
     }
-    if (strcmp(cmd,"cd") == 0) {
-        FIOChangeCWD(params);
+    if (strcmp(cmd,"cd") == 0 || strcmp(cmd,"cdir") == 0) {                         // CDIR is MOS standard, CD is more common.
+        int e = FIOChangeCWD(params);                                               // Try to change directory.
+        if (e != 0) CONWriteString("%c%cFailed.\r\n",17,1);                         // Couldn't do so.
         return true;
     }
     return false;
@@ -49,11 +50,12 @@ bool CMDCLICommand(char *cmd) {
 static void _CMDCLIDirectory(void) {
     int e = 0;
     char buffer[MAX_FILENAME_SIZE];
-    int h = FIOOpenDirectory("");
+    int h = FIOOpenDirectory(FIOGetCWD());
     while (e = FIOReadDirectory(h,buffer),e == 0) {
         if (buffer[0] != '.') {
             FIOInfo fInfo;
-            FSYSFileInformation(buffer,&fInfo);
+            char *fullPath = FIOMapFileName(buffer);
+            FSYSFileInformation(fullPath,&fInfo);
             CONWriteString("%-24s ",buffer);
             if (fInfo.isDirectory) {
                 CONWriteString("<dir>\r\n");
@@ -64,3 +66,10 @@ static void _CMDCLIDirectory(void) {
     }    
     FIOCloseDirectory(h);
 }
+
+// *COPY <src> <dest> [cp ?]
+// *DELETE <file> [rm ?]
+// *REMOVE <file> [no error if absent]
+// *KEY <n> <string>
+// *MOVE <src> <dest> [mv ?]
+// *RENAME <old> <new> 

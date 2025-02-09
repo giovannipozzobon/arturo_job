@@ -21,6 +21,7 @@
 #define FIO_ERR_MAXFILES    (-4)                                                    // Too many files open
 #define FIO_ERR_HANDLE      (-5)                                                    // Bad handle / not open
 #define FIO_ERR_READONLY    (-6)                                                    // Writing to read opened file.
+#define FIO_ERR_NOTDIR      (-7)                                                    // Not a directory
 
 #define FIO_EOF             (1)                                                     // End of file / Directory lsit.
 
