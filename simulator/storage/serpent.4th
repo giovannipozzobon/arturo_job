@@ -279,10 +279,10 @@ VARIABLE SCORE
 	    KEY? IF
 	    CASE KEY \ Read the key code.
 		81 OF EXIT ENDOF
-		1 OF 0 CHANGE-DIR ENDOF \ move to left.
-		4 OF 1 CHANGE-DIR ENDOF \ move to right
-		23 OF 2 CHANGE-DIR ENDOF \ move up
-		19 OF 3 CHANGE-DIR ENDOF \ move down
+		136 OF 0 CHANGE-DIR ENDOF \ move to left.
+		137 OF 1 CHANGE-DIR ENDOF \ move to right
+		139 OF 2 CHANGE-DIR ENDOF \ move up
+		138 OF 3 CHANGE-DIR ENDOF \ move down
 	    ENDCASE
 	    THEN
 	NEXT-CELL 2DUP >PLAYFIELD C@
