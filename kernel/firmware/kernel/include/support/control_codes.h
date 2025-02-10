@@ -23,7 +23,7 @@
 #define CC_LF       CONTROL('J')
 #define CC_CLS      CONTROL('L')
 #define CC_ENTER    CONTROL('M')
-#define CC_PAGEUP   CONTROL('R')
+#define CC_PAGEUP   132
 #define CC_DOWN     138
 #define CC_HOME     130
 #define CC_UP       139
