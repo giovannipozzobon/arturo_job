@@ -309,7 +309,7 @@ static void _VDUDrawCursor(bool isVisible) {
     struct DVIModeInformation *dmi = DVIGetModeInformation();            
     bool is64Bit = (dmi->bitPlaneDepth == 2);
     for (int plane = 0;plane < dmi->bitPlaneCount;plane++) {        
-        uint8_t *p = dmi->bitPlane[plane] + (dmi->bytesPerLine * 8 * yCursor) + (xCursor * (is64Bit ? 2 : 1));
+      uint8_t *p = dmi->bitPlane[plane] + (dmi->bytesPerLine * 8 * (yCursor+yTop)) + ((xCursor+xLeft) * (is64Bit ? 2 : 1));
         for (int y = 0;y < 8;y++) {
             *p ^= 0xFF;if (is64Bit) *(p+1) ^= 0xFF;
             p += dmi->bytesPerLine;
