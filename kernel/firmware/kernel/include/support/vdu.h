@@ -16,6 +16,7 @@ void VDUWriteString(const char *fmt, ...);
 void VDUPlotCommand(int cmd,int x,int y);
 void VDUSetGraphicsColour(int mode,int colour);
 int  VDUReadPixel(int x,int y);
+void VDUScrollRect(int ext, int direction);
 
 /**
  *      Drawing notes (from the BBC Micro user guide and the GXR user guide)

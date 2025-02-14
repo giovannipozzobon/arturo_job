@@ -173,6 +173,10 @@ void VDUWrite(int c) {
                     else
                         VDUDisableCursor();
                 break;
+   	        case 7:
+		    VDUHideCursor();
+		    VDUScrollRect(_vduBuffer[1],_vduBuffer[2]);
+	        break;
             default:
                 VDUDefineCharacter(_vduBuffer[0],_vduBuffer+1);
                 break;
