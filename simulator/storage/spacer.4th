@@ -851,7 +851,9 @@ CREATE COLOUR-TRANS2 0 C, 1 C, 2 C, 3 C, 4 C, 11 C, 10 C, 4 C,
 	    MAINLOOP
 	    #SHIPS @ 0=
 	UNTIL
-	3 12 AT-XY 63 COL ." Game Over !!! Play again (Y/N)?" 0 1000 MS
+	3 12 AT-XY 63 COL ." Game Over !!! Play again (Y/N)?" 
+	BEGIN KEY? WHILE KEY DROP REPEAT
+	1000 MS
 	KEY DUP $4E = SWAP $6E = OR
     UNTIL
     0 MODE 1 CURSOR
