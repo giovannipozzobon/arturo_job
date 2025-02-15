@@ -75,6 +75,13 @@ static UNS32 get_cmd_file_name(UNS32 start, UNS32 len)
   return namelen;
 }
 
+static UNS32 keypressed(UNS32 keycode)
+{
+  if (keycode > KBD_MAX_KEYCODE)
+    return 0;
+  else
+    return  KBDGetStateArray()[keycode];
+}
 
 /* Replacement for fgets as the one in AgDev appears to be broken,
    does not detect EOF on real machine */
@@ -184,7 +191,10 @@ void FTH_do_os(void)
  case 18: /* cmd-filename */
                          FTH.save_sp+=4;len=CELL(FTH.save_sp-4);addr=CELL(FTH.save_sp);
 			 CLIP(); SWAP(); ior=get_cmd_file_name(addr,len);  SWAP();
-    		         goto end;  
+    		         goto end;
+ case 19: /* keycode? */
+                         CELL(FTH.save_sp) = keypressed(CELL(FTH.save_sp));
+                         return;
  } return;
  end: CELL(FTH.save_sp)=ior;
 }
