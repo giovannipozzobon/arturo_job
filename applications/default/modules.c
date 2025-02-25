@@ -13,6 +13,7 @@
 #include "default.h"
 
 void FTH_ApplicationRun(char *params);
+void EDT_ApplicationRun(char *params);
 
 static void CMDListModules(void);
 
@@ -24,6 +25,7 @@ struct _ModuleList {
     APPFUNCTION startFunction;
 } modules[] = {
     { "forth",FTH_ApplicationRun },
+    { "edit",EDT_ApplicationRun },
     { NULL,NULL }   
 };
 

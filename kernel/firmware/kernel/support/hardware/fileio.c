@@ -145,6 +145,20 @@ int FIODeleteFile(char *fileName) {
 }
 
 /**
+ * @brief      Rename a file
+ *
+ * @param      fileName  The filename
+ *
+ * @return     Error code if non-zero
+ */
+int FIORenameFile(char *oldFileName,char *newFileName) {
+  char newnamebuf[256];
+  strcpy(newnamebuf,FIOMapFileName(newFileName));
+  oldFileName = FIOMapFileName(oldFileName);                                            // Map onto CWD
+  return FSYSRenameFile(oldFileName,newnamebuf);
+}
+
+/**
  * @brief      Delete Directory
  *
  * @param      fileName  The file name to directory

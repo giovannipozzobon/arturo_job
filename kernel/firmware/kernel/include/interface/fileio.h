@@ -50,6 +50,7 @@ int     FSYSFileInformation(char *name,FIOInfo *info);                          
 int     FSYSCreateFile(char *name);                                                 // Create an empty file of that name.
 int     FSYSCreateDirectory(char *name);                                            // Create a directory of that name
 int     FSYSDeleteFile(char *name);                                                 // Delete a file
+int     FSYSRenameFile(char *oldname, char *newname);                               // Rename a file
 int     FSYSDeleteDirectory(char *name);
 
 int     FSYSOpenDirectory(char *directory);                                         // Open a directory

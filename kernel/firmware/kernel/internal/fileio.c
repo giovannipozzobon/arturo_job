@@ -99,6 +99,19 @@ int FSYSDeleteFile(char *name) {
     return _FSYSMapError(fr);
 }
 
+/**
+ * @brief      Rename a file
+ *
+ * @param      oldname  The old name of the file.
+ * @param      newname  The new name of the file.
+ *
+ * @return     Error code if non zero
+ */
+int FSYSRenameFile(char *oldname, char *newname) {
+    FRESULT fr = f_rename(oldname,newname);
+    if (fr == FR_OK) return FIO_OK;
+    return _FSYSMapError(fr);
+}
 
 /**
  * @brief      Create a new directory if it does not already exist

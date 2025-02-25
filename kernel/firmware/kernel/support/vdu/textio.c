@@ -175,6 +175,14 @@ void VDUSetTextCursor(int x,int y) {
     }
 }
 
+
+void VDUGetCursor(int *x, int *y)
+{
+  *x = xCursor;
+  *y = yCursor;
+}
+
+
 /**
  * @brief      Set the text foreground/background colour
  *

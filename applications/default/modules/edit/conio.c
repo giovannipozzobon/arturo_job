@@ -1,0 +1,211 @@
+/* Nano-style editor
+   Copyright 2025, L.C. Benschop, Eindhoven, The Netherlands.
+   MIT license
+*/
+
+#include "common.h"
+#include "edit.h"
+
+
+unsigned int  EDT_GetKey(void)
+{
+  int k;
+    do {
+      if (SYSYield()) {
+	if (!SYSAppRunning()) {
+	  return -1;
+	}
+      }
+      k = KBDGetKey();
+    } while (k==0);
+    return k;
+}
+
+
+void EDT_InitScreen(void)
+{
+  VDUWrite(22); VDUWrite(EDT.mem_start[SCR_ROWS_OFFS]==60?2:0);  
+}
+
+void EDT_InvVideo(void)
+{
+  VDUWrite(17);VDUWrite(0);VDUWrite(17);VDUWrite(135);
+}
+
+void EDT_TrueVideo(void)
+{
+  VDUWrite(17);VDUWrite(7);VDUWrite(17);VDUWrite(128);
+}
+
+void EDT_SetCursor(int x, int y)
+{
+  VDUWrite(31);VDUWrite(x);VDUWrite(y);
+}
+
+void EDT_ReadLine(unsigned char* buf, int len)
+{
+  int i=0;
+  int c;
+  for(;;) {
+    if (buf[i]==0) break;
+    VDUWrite(buf[i++]);
+  }
+  for(;;) {
+    c=EDT_GetKey();
+    switch(c) {
+    case -1:
+      return;
+    case 13:
+      return;
+    case 127:
+      if (i>0) {
+	VDUWrite(127);
+	i--;
+	buf[i]=0;
+      }
+      break;
+    default:
+      if (i<len && c>=32) {
+	VDUWrite(c);
+	buf[i++]=c;
+	buf[i]=0;
+      }
+    }
+  }
+}
+
+void EDT_ClrEOL(void)
+{
+  int x,y,n;
+  VDUGetCursor(&x,&y);
+  n = SCR_COLS-x;
+  if (y==EDT.mem_start[SCR_ROWS_OFFS]-1)
+    n--;
+  for (int i=0; i<n; i++) VDUWrite(32);
+}
+
+unsigned char * EDT_RenderLine(unsigned char *p, bool is_current)
+{
+  unsigned char c;
+  bool is_scrolled=false;
+  int col = 0;
+  unsigned char *q=p;
+  int tabstop = EDT.mem_start[TAB_STOP_OFFS];
+  if (is_current) {
+    /* First find out how much to scroll the line to the left if the current
+       edit position is beyond the width of the screen */
+    for(;;) {
+      if (q==EDT.gap_start) {
+	break;
+      }
+      if (*q=='\n') {
+	break;
+      }
+      if (*q++=='\t') {
+	col = (col + tabstop) & (-tabstop);
+	if (col>SCR_COLS-1)col=SCR_COLS-1;
+      } else {
+	col++;
+      }
+      if (col==SCR_COLS-1) {
+	col=1;
+	p = q;
+	is_scrolled=true;
+      }
+    }
+    EDT.mem_start[CURSOR_COL_OFFS]=col;
+  }
+  if (is_scrolled) {
+    EDT_InvVideo();
+    VDUWrite('<');
+    EDT_TrueVideo();
+    col=1;
+  } else {
+    col=0;
+  }
+  for(;;) {
+    if (p==EDT.gap_start) {
+      p=EDT.gap_end;
+    }
+    c=*p++;
+    if (c=='\n') {
+      if (col==SCR_COLS) {
+	EDT_InvVideo();
+	VDUWrite('>');
+	EDT_TrueVideo();	
+      }  else if (is_current) {   
+	EDT_ClrEOL();
+      } else {
+	VDUWrite(13);VDUWrite(10);
+      }
+      break;
+    } else if (c=='\t' && col<SCR_COLS-1) {
+      do {
+	VDUWrite(' ');
+	col++;
+      } while ( (col & (tabstop-1)) && col < SCR_COLS-1);
+    } else if (col<SCR_COLS-1) {
+      VDUWrite(c);
+      col++;
+    } else {
+      col = SCR_COLS;
+    }
+  }
+  return p;
+}
+
+void EDT_RenderCurrentLine(void)
+{
+  EDT_SetCursor(0,
+		EDT.mem_start[CURSOR_ROW_OFFS]+1);
+  EDT_RenderLine(EDT.gap_start-EDT.mem_start[CURLINE_POS_OFFS],true);
+  EDT_ShowCursor();
+}
+
+void EDT_LeaveCurrentLine(void)
+{
+  EDT_SetCursor(0,
+		EDT.mem_start[CURSOR_ROW_OFFS]+1);
+  EDT_RenderLine(EDT.gap_start-EDT.mem_start[CURLINE_POS_OFFS],false);
+}
+
+
+void EDT_ShowCursor(void)
+{
+  EDT_SetCursor(EDT.mem_start[CURSOR_COL_OFFS],
+		EDT.mem_start[CURSOR_ROW_OFFS]+1);
+}
+
+
+void EDT_ShowBottom(void)
+{
+  EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+  EDT_InvVideo(); 
+  VDUWriteString("Line %d/%d, %d/%d bytes -- ESC to exit, ^G for help %c Cut %d",
+		 EDT.lineno,
+		 EDT.total_lines,
+		 EDT.gap_start-EDT.text_start + EDT.text_end-EDT.gap_end,
+		 EDT.text_end - EDT.text_start,
+		 EDT.mem_start[IS_CHANGED_OFFS]?'*':' ',
+		 EDT.cut_lines
+		 );
+  EDT_ClrEOL();
+  EDT_TrueVideo();
+}
+
+void EDT_ShowScreen(void)
+{
+  unsigned char *p = EDT.top_line;
+  VDUWrite(12);
+  EDT_InvVideo();
+  VDUWriteString("Arturo Editor: %s",EDT.mem_start+FILENAME_OFFS);
+  EDT_ClrEOL();
+  EDT_TrueVideo();
+
+  for (int i=0; i<EDT.mem_start[SCR_ROWS_OFFS]-2 && p!=EDT.text_end; i++) {
+    p = EDT_RenderLine(p,i==EDT.mem_start[CURSOR_ROW_OFFS]);
+  }
+  EDT_ShowBottom();
+  EDT_ShowCursor();
+}
+

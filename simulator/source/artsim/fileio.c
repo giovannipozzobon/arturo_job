@@ -116,6 +116,20 @@ int FSYSDeleteFile(char *name) {
 }
 
 /**
+ * @brief      Delete a file
+ *
+ * @param      name  The name of the file
+ *
+ * @return     Error code if non zero
+ */
+int FSYSRenameFile(char *oldname, char *newname) {
+  char newnamebuf[256];
+  strcpy(newnamebuf,_FSYSMapName(newname));
+  if (rename(_FSYSMapName(oldname),newnamebuf) == 0) return FIO_OK;                         // Rename worked okay.
+    return _FSYSMapError(); 
+}
+
+/**
  * @brief      Create a new directory if it does not already exist
  *
  * @param      name  The name of the directory

@@ -22,6 +22,7 @@ int FIOGetSetPosition(int handle,int newPosition);
 int FIOCreateFile(char *fileName);
 int FIOCreateDirectory(char *fileName);
 int FIODeleteFile(char *fileName);
+int FIORenameFile(char *oldname, char *newname);
 int FIODeleteDirectory(char *fileName);
 int FIOFileInformation(char *name,FIOInfo *info);                               
 int FIOChangeDirectory(char *directory);
