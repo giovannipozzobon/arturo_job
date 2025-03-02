@@ -15,6 +15,7 @@ unsigned int  EDT_GetKey(void)
 	if (!SYSAppRunning()) {
 	  return -1;
 	}
+	KBDEscapePressed(true);
       }
       k = KBDGetKey();
     } while (k==0);
@@ -174,6 +175,9 @@ void EDT_ShowCursor(void)
 {
   EDT_SetCursor(EDT.mem_start[CURSOR_COL_OFFS],
 		EDT.mem_start[CURSOR_ROW_OFFS]+1);
+  if (EDT.mem_start[CURSOR_COL_MAX_OFFS] < EDT.mem_start[CURSOR_COL_OFFS]) {
+    EDT.mem_start[CURSOR_COL_MAX_OFFS] = EDT.mem_start[CURSOR_COL_OFFS];
+  }
 }
 
 
@@ -207,5 +211,29 @@ void EDT_ShowScreen(void)
   }
   EDT_ShowBottom();
   EDT_ShowCursor();
+}
+
+void EDT_AdjustTop(bool always_redraw)
+{
+  if (EDT.top_line > EDT.gap_start ||
+      EDT.mem_start[CURSOR_ROW_OFFS] >= EDT.mem_start[SCR_ROWS_OFFS] -2) {
+    int lines_to_move = (EDT.mem_start[SCR_ROWS_OFFS] -2)/2;
+    EDT.mem_start[CURSOR_ROW_OFFS] = 0;
+    EDT.top_line = EDT.gap_start - EDT.mem_start[CURLINE_POS_OFFS];
+    while (lines_to_move && EDT.top_line > EDT.text_start) {
+      lines_to_move--; 
+      EDT.mem_start[CURSOR_ROW_OFFS]++;
+      EDT.top_line--;
+      while (EDT.top_line > EDT.text_start && EDT.top_line[-1] != '\n') {
+	EDT.top_line--;
+      }
+    }
+    EDT_ShowScreen();
+  } else if (always_redraw) {
+    EDT_ShowScreen();
+  } else {
+    EDT_ShowBottom();
+    EDT_RenderCurrentLine();
+  }
 }
 

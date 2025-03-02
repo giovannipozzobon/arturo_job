@@ -62,9 +62,7 @@ extern struct _EditState EDT;
   /*  Cursor column (can be >= 80) for long lines. */
 #define CURSOR_COL_MAX_OFFS (CURSOR_COL_OFFS+1)
   /* Cursor column to which we may return if we move to a longer line */
-#define CURLINE_SCROLLED_OFFS (CURSOR_COL_MAX_OFFS+1)
-  /* Number of characters scrolled to the left in current line */
-#define CURLINE_POS_OFFS (CURLINE_SCROLLED_OFFS+1)
+#define CURLINE_POS_OFFS (CURSOR_COL_MAX_OFFS+1)
   /* Position within current line of cursor */
 #define IS_CHANGED_OFFS  (CURLINE_POS_OFFS+1)
   /* Flag to indicate if file is changed */
@@ -89,6 +87,7 @@ void EDT_LeaveCurrentLine(void);
 void EDT_ShowScreen(void);
 void EDT_ShowCursor(void);
 void EDT_ShowBottom(void);
+void EDT_AdjustTop(bool always_redraw);
 
 void EDT_BufStartLine(void);
 void EDT_BufEndLine(void);
@@ -102,4 +101,6 @@ void EDT_BufPrevLine(void);
 void EDT_BufNextChar(void);
 void EDT_BufPrevChar(void);
 void EDT_BufAdjustCol(void);
-void EDT_AdjustTop(bool always_redraw);
+void EDT_BufDeleteLine(void);
+bool EDT_BufCopyLine(void);
+void EDT_BufPaste(void);

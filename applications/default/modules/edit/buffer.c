@@ -139,27 +139,41 @@ void EDT_BufAdjustCol(void)
   }    
 }
 
-
-void EDT_AdjustTop(bool always_redraw)
+/* Remove current line from buffer.
+   Pre: gap_end points to start of current line.
+   Post: gap_end points to start of line after the one deleted.
+ */
+void EDT_BufDeleteLine(void)
 {
-  if (EDT.top_line > EDT.gap_start ||
-      EDT.mem_start[CURSOR_ROW_OFFS] >= EDT.mem_start[SCR_ROWS_OFFS] -2) {
-    int lines_to_move = (EDT.mem_start[SCR_ROWS_OFFS] -2)/2;
-    EDT.mem_start[CURSOR_ROW_OFFS] = 0;
-    EDT.top_line = EDT.gap_start - EDT.mem_start[CURLINE_POS_OFFS];
-    while (lines_to_move && EDT.top_line > EDT.text_start) {
-      lines_to_move--; 
-      EDT.mem_start[CURSOR_ROW_OFFS]++;
-      EDT.top_line--;
-      while (EDT.top_line > EDT.text_start && EDT.top_line[-1] != '\n') {
-	EDT.top_line--;
-      }
-    }
-    EDT_ShowScreen();
-  } else if (always_redraw) {
-    EDT_ShowScreen();
+  EDT.gap_end += EDT.mem_start[CUR_LINE_LEN_OFFS];
+  if (EDT.gap_end < EDT.text_end - 1) {
+    /* Remove the trailing newline and decrease the number of lines.\
+       Do not do this at the end of the file, always keep the trailing newline.
+     */
+    EDT.total_lines--;
+    EDT.gap_end++;
+  }
+}
+
+bool EDT_BufCopyLine(void)
+{
+  if (EDT.mem_start[CUR_LINE_LEN_OFFS] < EDT.mem_end-EDT.cut_end) {
+    memcpy(EDT.cut_end, EDT.gap_end, EDT.mem_start[CUR_LINE_LEN_OFFS]+1);
+    EDT.cut_end += EDT.mem_start[CUR_LINE_LEN_OFFS]+1;
+    EDT.cut_lines++;
+    return true;
   } else {
-    EDT_ShowBottom();
-    EDT_RenderCurrentLine();
+    return false;
+  }
+}
+
+void EDT_BufPaste(void)
+{
+  if (EDT.gap_end - EDT.gap_start > EDT.cut_end-EDT.text_end &&
+      EDT.cut_lines>0) {
+    memcpy(EDT.gap_start, EDT.text_end, EDT.cut_end-EDT.text_end);
+    EDT.lineno += EDT.cut_lines;
+    EDT.total_lines += EDT.cut_lines;
+    EDT.gap_start += EDT.cut_end-EDT.text_end;
   }
 }

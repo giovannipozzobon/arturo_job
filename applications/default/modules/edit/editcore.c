@@ -130,16 +130,58 @@ static void EDT_NewLine(void)
 static void EDT_InsertChar(int c)
 {
   EDT_BufInsertChar(c);
+  EDT.mem_start[CURSOR_COL_MAX_OFFS]=0;
   EDT_RenderCurrentLine();
 }
-static void EDT_CutLine(bool FContinue)
+static void EDT_CutLine(bool fContinue)
 {
+  if (!fContinue) {
+    EDT.cut_end = EDT.text_end;
+    EDT.cut_lines = 0;
+  }
+  EDT_BufStartLine();
+  EDT.mem_start[CURLINE_POS_OFFS]=0;
+  EDT.mem_start[CURSOR_COL_MAX_OFFS]=0;
+  if (EDT_BufCopyLine()) {
+    EDT_BufDeleteLine();
+    EDT_BufAdjustCol();
+    EDT_AdjustTop(true);
+    EDT.mem_start[IS_CHANGED_OFFS]=1;
+  } else {
+    EDT_RenderCurrentLine();
+  }
 }
-static void EDT_CopyLine(bool FContinue)
+static void EDT_CopyLine(bool fContinue)
 {
+  if (!fContinue) {
+    EDT.cut_end = EDT.text_end;
+    EDT.cut_lines = 0;
+  }
+  EDT_BufStartLine();
+  EDT.mem_start[CURLINE_POS_OFFS]=0;
+  EDT.mem_start[CURSOR_COL_MAX_OFFS]=0;
+  if (EDT_BufCopyLine() && EDT.lineno<EDT.total_lines) {
+    EDT.lineno++;
+    EDT.mem_start[CURSOR_ROW_OFFS]++;
+    EDT_BufNextLine();
+    EDT_BufAdjustCol();
+    EDT_AdjustTop(true);
+  } else {
+    EDT_ShowBottom();
+    EDT_RenderCurrentLine();
+  }
 }
+
 static void EDT_Paste(void)
 {
+  EDT_BufStartLine();
+  EDT.mem_start[CURLINE_POS_OFFS]=0;
+  EDT.mem_start[CURSOR_COL_MAX_OFFS]=0;
+  EDT_BufPaste();
+  EDT.mem_start[IS_CHANGED_OFFS]=1;
+  EDT.mem_start[CURSOR_ROW_OFFS]=127;
+  EDT_BufAdjustCol();
+  EDT_AdjustTop(true);
 }
 
 static void EDT_CenterScreen(void)
@@ -152,7 +194,6 @@ static bool EDT_AskSave(void)
 {
   VDUWriteString("Save file: ");
   EDT_ReadLine(EDT.mem_start+FILENAME_OFFS,MAX_NAME_LENGTH);  
-  VDUWriteString("\r\n");
   return EDT_SaveFile(EDT.mem_start+FILENAME_OFFS);
 }
 static void EDT_GotoLine(void)
@@ -213,15 +254,123 @@ static void EDT_PageDown(void)
 }
 static void EDT_SearchF(void)
 {
+  unsigned int lines_fwd=0;
+  unsigned int srch_len;
+  unsigned char *p = EDT.gap_end+1;
+  EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+  EDT_ClrEOL();
+  EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+  VDUWriteString("Find: ");
+  EDT_ReadLine(EDT.mem_start+SEARCHSTRING_OFFS,MAX_NAME_LENGTH);
+  srch_len = strlen((char*)EDT.mem_start+SEARCHSTRING_OFFS);
+  if (srch_len>0) {
+    while (EDT.text_end - p >= srch_len) {
+      if (memcmp(p,EDT.mem_start+SEARCHSTRING_OFFS,srch_len)==0) {
+	/* Found it! */
+	while (p != EDT.gap_end) {
+	  EDT_BufNextChar();
+	}
+	EDT_BufStartLine();
+	EDT.mem_start[CURSOR_COL_OFFS]=0;
+	EDT.mem_start[CURSOR_COL_MAX_OFFS]=0;	
+	EDT_BufAdjustCol();
+	EDT.mem_start[CURLINE_POS_OFFS]=p-EDT.gap_end;
+	while (p != EDT.gap_end) {
+	  EDT_BufNextChar();
+	}	
+	EDT.lineno+=lines_fwd;
+	EDT.mem_start[CURSOR_ROW_OFFS]=127;
+	EDT_AdjustTop(true);
+	return;
+      }
+      if (*p++=='\n') lines_fwd++;
+    }
+  }
+  /* Got here, not found */
+  EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+  VDUWriteString("Not found!");
+  EDT_ClrEOL();
+  EDT_RenderCurrentLine();
 }
 static void EDT_SearchB(void)
 {
+  unsigned int lines_bwd=0;
+  unsigned int srch_len;
+  unsigned char *p = EDT.gap_start-1;
+  EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+  EDT_ClrEOL();
+  EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+  VDUWriteString("Find: ");
+  EDT_ReadLine(EDT.mem_start+SEARCHSTRING_OFFS,MAX_NAME_LENGTH);
+  srch_len = strlen((char*)EDT.mem_start+SEARCHSTRING_OFFS);
+  if (srch_len>0) {
+    while (p > EDT.text_start) {
+      if (memcmp(p,EDT.mem_start+SEARCHSTRING_OFFS,srch_len)==0) {
+	/* Found it! */
+	while (p != EDT.gap_start) {
+	  EDT_BufPrevChar();
+	}
+	EDT_BufStartLine();
+	EDT.mem_start[CURSOR_COL_OFFS]=0;
+	EDT.mem_start[CURSOR_COL_MAX_OFFS]=0;	
+	EDT_BufAdjustCol();
+	EDT.mem_start[CURLINE_POS_OFFS]=p-EDT.gap_start;
+	while (p != EDT.gap_start) {
+	  EDT_BufNextChar();
+	}	
+	EDT.lineno-=lines_bwd;
+	EDT.mem_start[CURSOR_ROW_OFFS]=127;
+	EDT_AdjustTop(true);
+	return;
+      }
+      if (*p--=='\n') lines_bwd++;
+    }
+  }
+  /* Got here, not found */
+  EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+  VDUWriteString("Not found!");
+  EDT_ClrEOL();
+  EDT_RenderCurrentLine();  
 }
 static void EDT_ReadFile(void)
 {
+  unsigned int old_lines = EDT.total_lines;
+  unsigned int added_lines,i;
+  EDT_BufStartLine();
+  EDT.mem_start[CURLINE_POS_OFFS]=0;
+  EDT.mem_start[CURSOR_COL_MAX_OFFS]=0;
+  EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+  EDT_ClrEOL();
+  EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+  VDUWriteString("Read file: ");
+  EDT.mem_start[BACKFILENAME_OFFS]=0;
+  EDT_ReadLine(EDT.mem_start+BACKFILENAME_OFFS,MAX_NAME_LENGTH);  
+  EDT_LoadFile(EDT.mem_start+BACKFILENAME_OFFS);
+  added_lines = EDT.total_lines - old_lines;
+  for (i=0; i<added_lines; i++) {
+    EDT_BufNextLine();
+    EDT.lineno++;
+  }
+  EDT.mem_start[IS_CHANGED_OFFS]=1;
+  EDT.mem_start[CURSOR_ROW_OFFS]=127;
+  EDT_BufAdjustCol();
+  EDT_AdjustTop(true);
 }
+
+/* Read 2 keypresses and treat them as hex digits. Insert the corresponding
+   character */
 static void EDT_InsertHex(void)
 {
+  unsigned char d1,d2;
+  d1=toupper(EDT_GetKey());
+  d2=toupper(EDT_GetKey());
+  if (d1>='A') d1-=7;
+  d1-='0';
+  if (d2>='A') d2-=7;
+  d2-='0';
+  d1 = (d1<<4)+d2;
+  if (d1>=32 && d1 != 127)
+    EDT_InsertChar(d1);
 }
 
 
@@ -264,7 +413,11 @@ static void EDT_ShowHelp(void)
   EDT_ShowScreen();
 }
 
-
+/* Main function of the editor.
+   Pre: EDT.mem_start start of memory area.
+        EDT.mem_end end of memory area.
+	EDT.mem_start+FILENAME_OFFS: null terminated string filename to edit
+*/
 void EDT_EditCore(void)
 {
   bool fCutContinue = false;
@@ -279,9 +432,9 @@ void EDT_EditCore(void)
   EDT.mem_start[CURSOR_ROW_OFFS] = 0;
   EDT.mem_start[CURSOR_COL_OFFS] = 0;
   EDT.mem_start[CURSOR_COL_MAX_OFFS] = 0;
-  EDT.mem_start[CURLINE_SCROLLED_OFFS] = 0;
   EDT.mem_start[CURLINE_POS_OFFS] = 0;
   EDT.mem_start[IS_CHANGED_OFFS] = 0;
+  EDT.mem_start[SEARCHSTRING_OFFS]=0;
   EDT.total_lines = 0;
   EDT.cut_lines = 0;
   
@@ -347,8 +500,14 @@ void EDT_EditCore(void)
       EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
       EDT_ClrEOL();
       EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
-      EDT_AskSave();
-      EDT_ShowBottom();
+      if (!EDT_AskSave()) {
+	EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+	EDT_ClrEOL();
+	EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+	VDUWriteString("File save failed!");
+      } else {
+	EDT_ShowBottom();
+      }
       break;
     case 16:
     case 139:
@@ -373,7 +532,7 @@ void EDT_EditCore(void)
     case 23:
       EDT_SearchF();
       break;
-    case 24:
+    case 24:      
     case 27:
       VDUWrite(12);
       if (EDT.mem_start[IS_CHANGED_OFFS]) {
@@ -383,8 +542,11 @@ void EDT_EditCore(void)
 	  VDUWriteString("Save file (Y/n)? ");
 	  k = EDT_GetKey();
 	  VDUWriteString("\r\n");
-	  if (k!='n' && k!='N')
+	  if (k!='n' && k!='N') {
 	    success=EDT_AskSave();
+	    VDUWriteString("\r\n");
+	  }
+	  if (!success) VDUWriteString("File save failed!\r\n");
 	} while (!success);
       }
       return;
