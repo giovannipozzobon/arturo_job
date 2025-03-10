@@ -36,12 +36,12 @@ int EDT_BufLenCurLine(void)
 
 void EDT_BufInsertChar(unsigned char c)
 {
-  if (EDT.mem_start[CUR_LINE_LEN_OFFS] < 254 &&
+  if (EDT.curline_len < 254 &&
       EDT.gap_start < EDT.gap_end-1) {
-    EDT.mem_start[IS_CHANGED_OFFS]=1;
+    EDT.is_changed=1;
     *EDT.gap_start++ = c;
-    EDT.mem_start[CUR_LINE_LEN_OFFS]++;
-    EDT.mem_start[CURLINE_POS_OFFS]++;
+    EDT.curline_len++;
+    EDT.curline_pos++;
   }
 }
 
@@ -49,7 +49,7 @@ void EDT_BufInsertNL(void)
 {
   if (EDT.gap_start < EDT.gap_end-1) {
     *EDT.gap_start++ = '\n';    
-    EDT.mem_start[IS_CHANGED_OFFS]=1;
+    EDT.is_changed=1;
     EDT.lineno++;
     EDT.total_lines++;
   }
@@ -59,8 +59,8 @@ void EDT_BufInsertNL(void)
 void EDT_BufDeleteChar(void)
 {
   EDT.gap_end++;
-  EDT.mem_start[CUR_LINE_LEN_OFFS]--;
-  EDT.mem_start[IS_CHANGED_OFFS]=1;
+  EDT.curline_len--;
+  EDT.is_changed=1;
 }
 
 /*
@@ -76,9 +76,9 @@ void EDT_BufJoinLines(void)
   if (EDT.gap_end < EDT.text_end) {
     EDT_BufNextChar();
     nextlen = EDT_BufLenCurLine();
-    if (EDT.mem_start[CUR_LINE_LEN_OFFS] + nextlen < 255) {
-      EDT.mem_start[IS_CHANGED_OFFS]=1;
-      EDT.mem_start[CUR_LINE_LEN_OFFS] += nextlen;
+    if (EDT.curline_len + nextlen < 255) {
+      EDT.is_changed=1;
+      EDT.curline_len += nextlen;
       EDT.gap_start--;
       EDT.total_lines--;
     }
@@ -116,14 +116,14 @@ void EDT_BufPrevChar(void)
 
 void EDT_BufAdjustCol(void)
 {
-  int targetcol = EDT.mem_start[CURSOR_COL_MAX_OFFS];
+  int targetcol = EDT.cursor_col_max;
   int col=0;
-  int tabstop = EDT.mem_start[TAB_STOP_OFFS];
-  EDT.mem_start[CUR_LINE_LEN_OFFS]=EDT_BufLenCurLine();
+  int tabstop = EDT.tab_stop;
+  EDT.curline_len=EDT_BufLenCurLine();
   if (targetcol == 0) {
-    targetcol = EDT.mem_start[CURSOR_COL_OFFS];
+    targetcol = EDT.cursor_col;
   }
-  EDT.mem_start[CURLINE_POS_OFFS] = 0;
+  EDT.curline_pos = 0;
   while (col < targetcol) {
     if (*EDT.gap_end=='\n') return;
     if (*EDT.gap_end=='\t') {
@@ -132,10 +132,10 @@ void EDT_BufAdjustCol(void)
       col++;
     }
     EDT_BufNextChar();  
-    EDT.mem_start[CURLINE_POS_OFFS] ++;
+    EDT.curline_pos++;
   }
-  if (col > EDT.mem_start[CURSOR_COL_MAX_OFFS]) {
-    EDT.mem_start[CURSOR_COL_MAX_OFFS] = col;
+  if (col > EDT.cursor_col_max) {
+    EDT.cursor_col_max = col;
   }    
 }
 
@@ -145,7 +145,7 @@ void EDT_BufAdjustCol(void)
  */
 void EDT_BufDeleteLine(void)
 {
-  EDT.gap_end += EDT.mem_start[CUR_LINE_LEN_OFFS];
+  EDT.gap_end += EDT.curline_len;
   if (EDT.gap_end < EDT.text_end - 1) {
     /* Remove the trailing newline and decrease the number of lines.\
        Do not do this at the end of the file, always keep the trailing newline.
@@ -157,9 +157,9 @@ void EDT_BufDeleteLine(void)
 
 bool EDT_BufCopyLine(void)
 {
-  if (EDT.mem_start[CUR_LINE_LEN_OFFS] < EDT.mem_end-EDT.cut_end) {
-    memcpy(EDT.cut_end, EDT.gap_end, EDT.mem_start[CUR_LINE_LEN_OFFS]+1);
-    EDT.cut_end += EDT.mem_start[CUR_LINE_LEN_OFFS]+1;
+  if (EDT.curline_len < EDT.mem_end-EDT.cut_end) {
+    memcpy(EDT.cut_end, EDT.gap_end, EDT.curline_len+1);
+    EDT.cut_end += EDT.curline_len+1;
     EDT.cut_lines++;
     return true;
   } else {

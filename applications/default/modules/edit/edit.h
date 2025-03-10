@@ -25,6 +25,16 @@ struct _EditState {
   unsigned int lineno; /* Line number at cursor (1-based) */
   unsigned int total_lines; /* Number of lines of text in buffer */
   unsigned int cut_lines;
+  unsigned char is_changed;   /* Flag to indicate if file is changed */
+  unsigned char curline_pos;   /* Position within current line of cursor */
+  unsigned char curline_len;    /*  Lenght of current line in bytes */
+  unsigned char cursor_col_max;   /* Cursor column to which we may return if we move to a longer line */
+  unsigned char cursor_col;   /*  Cursor column (can be >= 80) for long lines. */
+  unsigned char cursor_row;    /* Cursor row 0 is top of text area */
+  unsigned char tab_stop;        /* Tab stops at 4 or 8 chars? */
+  unsigned char scr_rows;        /* Number of text rows on the screen (30 or 60) */
+  unsigned char crlf_flag;       /* flag to indicate that file should be saved with CR-LF instead of LR */
+
 };
 
 extern struct _EditState EDT;
@@ -48,25 +58,7 @@ extern struct _EditState EDT;
   /* 41 bytes 40-byte null-terminated search string */
 #define LINENOSTRING_OFFS (SEARCHSTRING_OFFS+41)
   /* 5 bytes 4-byte type buffer for line number */
-#define CRLF_FLAG_OFFS  (LINENOSTRING_OFFS + 5)
-  /* flag to indicate that file should be saved with CR-LF instead of LR */
-#define SCR_ROWS_OFFS (CRLF_FLAG_OFFS+1)
-  /* Number of text rows on the screen (30 or 60) */
-#define TAB_STOP_OFFS (SCR_ROWS_OFFS+1)
-  /* Tab stops at 4 or 8 chars? */
-#define CUR_LINE_LEN_OFFS (TAB_STOP_OFFS+1)
-  /*  Lenght of current line in bytes */
-#define CURSOR_ROW_OFFS (CUR_LINE_LEN_OFFS+1)
-   /* Cursor row 0 is top of text area */
-#define CURSOR_COL_OFFS (CURSOR_ROW_OFFS+1)
-  /*  Cursor column (can be >= 80) for long lines. */
-#define CURSOR_COL_MAX_OFFS (CURSOR_COL_OFFS+1)
-  /* Cursor column to which we may return if we move to a longer line */
-#define CURLINE_POS_OFFS (CURSOR_COL_MAX_OFFS+1)
-  /* Position within current line of cursor */
-#define IS_CHANGED_OFFS  (CURLINE_POS_OFFS+1)
-  /* Flag to indicate if file is changed */
-#define VAR_END_OFFS (IS_CHANGED_OFFS+1)
+#define VAR_END_OFFS (LINENOSTRING_OFFS + 5)
   /* Offset where we can have the text_start pointer */
 
 #define SCR_COLS 80 /* The number of columns is set fixed to 80 */

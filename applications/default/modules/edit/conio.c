@@ -25,7 +25,7 @@ unsigned int  EDT_GetKey(void)
 
 void EDT_InitScreen(void)
 {
-  VDUWrite(22); VDUWrite(EDT.mem_start[SCR_ROWS_OFFS]==60?2:0);  
+  VDUWrite(22); VDUWrite(EDT.scr_rows==60?2:0);  
 }
 
 void EDT_InvVideo(void)
@@ -80,7 +80,7 @@ void EDT_ClrEOL(void)
   int x,y,n;
   VDUGetCursor(&x,&y);
   n = SCR_COLS-x;
-  if (y==EDT.mem_start[SCR_ROWS_OFFS]-1)
+  if (y==EDT.scr_rows-1)
     n--;
   for (int i=0; i<n; i++) VDUWrite(32);
 }
@@ -91,7 +91,7 @@ unsigned char * EDT_RenderLine(unsigned char *p, bool is_current)
   bool is_scrolled=false;
   int col = 0;
   unsigned char *q=p;
-  int tabstop = EDT.mem_start[TAB_STOP_OFFS];
+  int tabstop = EDT.tab_stop;
   if (is_current) {
     /* First find out how much to scroll the line to the left if the current
        edit position is beyond the width of the screen */
@@ -114,7 +114,7 @@ unsigned char * EDT_RenderLine(unsigned char *p, bool is_current)
 	is_scrolled=true;
       }
     }
-    EDT.mem_start[CURSOR_COL_OFFS]=col;
+    EDT.cursor_col=col;
   }
   if (is_scrolled) {
     EDT_InvVideo();
@@ -158,39 +158,39 @@ unsigned char * EDT_RenderLine(unsigned char *p, bool is_current)
 void EDT_RenderCurrentLine(void)
 {
   EDT_SetCursor(0,
-		EDT.mem_start[CURSOR_ROW_OFFS]+1);
-  EDT_RenderLine(EDT.gap_start-EDT.mem_start[CURLINE_POS_OFFS],true);
+		EDT.cursor_row+1);
+  EDT_RenderLine(EDT.gap_start-EDT.curline_pos,true);
   EDT_ShowCursor();
 }
 
 void EDT_LeaveCurrentLine(void)
 {
   EDT_SetCursor(0,
-		EDT.mem_start[CURSOR_ROW_OFFS]+1);
-  EDT_RenderLine(EDT.gap_start-EDT.mem_start[CURLINE_POS_OFFS],false);
+		EDT.cursor_row+1);
+  EDT_RenderLine(EDT.gap_start-EDT.curline_pos,false);
 }
 
 
 void EDT_ShowCursor(void)
 {
-  EDT_SetCursor(EDT.mem_start[CURSOR_COL_OFFS],
-		EDT.mem_start[CURSOR_ROW_OFFS]+1);
-  if (EDT.mem_start[CURSOR_COL_MAX_OFFS] < EDT.mem_start[CURSOR_COL_OFFS]) {
-    EDT.mem_start[CURSOR_COL_MAX_OFFS] = EDT.mem_start[CURSOR_COL_OFFS];
+  EDT_SetCursor(EDT.cursor_col,
+		EDT.cursor_row+1);
+  if (EDT.cursor_col_max < EDT.cursor_col) {
+    EDT.cursor_col_max = EDT.cursor_col;
   }
 }
 
 
 void EDT_ShowBottom(void)
 {
-  EDT_SetCursor(0,EDT.mem_start[SCR_ROWS_OFFS]-1);
+  EDT_SetCursor(0,EDT.scr_rows-1);
   EDT_InvVideo(); 
   VDUWriteString("Line %d/%d, %d/%d bytes -- ESC to exit, ^G for help %c Cut %d",
 		 EDT.lineno,
 		 EDT.total_lines,
 		 EDT.gap_start-EDT.text_start + EDT.text_end-EDT.gap_end,
 		 EDT.text_end - EDT.text_start,
-		 EDT.mem_start[IS_CHANGED_OFFS]?'*':' ',
+		 EDT.is_changed?'*':' ',
 		 EDT.cut_lines
 		 );
   EDT_ClrEOL();
@@ -206,8 +206,8 @@ void EDT_ShowScreen(void)
   EDT_ClrEOL();
   EDT_TrueVideo();
 
-  for (int i=0; i<EDT.mem_start[SCR_ROWS_OFFS]-2 && p!=EDT.text_end; i++) {
-    p = EDT_RenderLine(p,i==EDT.mem_start[CURSOR_ROW_OFFS]);
+  for (int i=0; i<EDT.scr_rows-2 && p!=EDT.text_end; i++) {
+    p = EDT_RenderLine(p,i==EDT.cursor_row);
   }
   EDT_ShowBottom();
   EDT_ShowCursor();
@@ -216,13 +216,13 @@ void EDT_ShowScreen(void)
 void EDT_AdjustTop(bool always_redraw)
 {
   if (EDT.top_line > EDT.gap_start ||
-      EDT.mem_start[CURSOR_ROW_OFFS] >= EDT.mem_start[SCR_ROWS_OFFS] -2) {
-    int lines_to_move = (EDT.mem_start[SCR_ROWS_OFFS] -2)/2;
-    EDT.mem_start[CURSOR_ROW_OFFS] = 0;
-    EDT.top_line = EDT.gap_start - EDT.mem_start[CURLINE_POS_OFFS];
+      EDT.cursor_row >= EDT.scr_rows -2) {
+    int lines_to_move = (EDT.scr_rows -2)/2;
+    EDT.cursor_row = 0;
+    EDT.top_line = EDT.gap_start - EDT.curline_pos;
     while (lines_to_move && EDT.top_line > EDT.text_start) {
       lines_to_move--; 
-      EDT.mem_start[CURSOR_ROW_OFFS]++;
+      EDT.cursor_row++;
       EDT.top_line--;
       while (EDT.top_line > EDT.text_start && EDT.top_line[-1] != '\n') {
 	EDT.top_line--;
