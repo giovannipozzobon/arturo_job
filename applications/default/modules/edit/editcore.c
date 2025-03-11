@@ -437,6 +437,7 @@ void EDT_EditCore(void)
   EDT.mem_start[SEARCHSTRING_OFFS]=0;
   EDT.total_lines = 0;
   EDT.cut_lines = 0;
+  EDT_LoadConfig("/edit.cfg");
   
   EDT_InitScreen();
   EDT_LoadFile(EDT.mem_start+FILENAME_OFFS);

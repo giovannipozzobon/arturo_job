@@ -68,6 +68,7 @@ unsigned int  EDT_GetKey(void);
 void EDT_InitScreen(void);
 void EDT_LoadFile(unsigned char *name);
 bool EDT_SaveFile(unsigned char *name);
+void EDT_LoadConfig(char *name);
 void EDT_InvVideo(void);
 void EDT_TrueVideo(void);
 void EDT_SetCursor(int x, int y);
