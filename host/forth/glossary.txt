@@ -88,7 +88,7 @@ Add w to the contents of the cell at a-addr.
 Add n1 and n2 and the carry flag cy1 (must be 0 or 1) giving sum n3
 and carry flag cy2. (n3 cy2 can be seen as a double number) 
 
-+LOOP   x ---                                                                  
++LOOP   x n---                                                                 
 End a DO +LOOP 
 Runtime: ( n ---) Add n to the count and exit if this crosses the 
 boundary between limit-1 and limit. 
@@ -239,13 +239,17 @@ Push x on the return stack.
 ?CSP   ---                                                                     
 Check that stack pointer is equal to value contained in CSP. 
 
-?DO   --- x                                                                    
+?DO   --- x n                                                                  
 Start a ?DO LOOP.
 Runtime: ( n1 n2 --- ) start a loop with initial count n2 and
 limit n1. Exit immediately if n1 = n2.  
 
 ?DUP   n --- 0 | n n                                                           
 Duplicate the top cell on the stack, but only if it is nonzero.
+
+?PAIRS   n1 n2 ---                                                             
+Check that n1 matches n2, throw an error if not, used to check
+correct pairing of control structures.
 
 ?STACK   ---                                                                   
 Check for stack over/underflow and abort with an error if needed.
@@ -294,7 +298,7 @@ Put screen cursor at location (x,y) (0,0) is upper left corner.
 BASE   --- a-addr                                                              
 Variable that contains the numerical conversion base.
 
-BEGIN   --- x                                                                  
+BEGIN   --- x n                                                                
 Start a BEGIN UNTIL or BEGIN WHILE REPEAT loop.
 
 BIN   mode1 --- mode2                                                          
@@ -471,7 +475,7 @@ hex/ascii dump in one line of 16 bytes at addr1 addr2 is addr1+16
 DNEGATE   d1 --- d2                                                            
 Negate the top double number on the stack.
 
-DO   --- x                                                                     
+DO   --- x n                                                                   
 Start a DO LOOP.
 Runtime: ( n1 n2 --- ) start a loop with initial count n2 and 
 limit n1.
@@ -500,7 +504,7 @@ Show a hex/ascii dump of the memory block of len bytes at addr
 DUP   x --- x x                                                                
 Duplicate the top cell on the stack.    
 
-ELSE   x1 --- x2                                                               
+ELSE   x1 n2 --- x2 n2                                                         
 part of IF ELSE THEN construction.
 
 EMIT   c ---                                                                   
@@ -601,7 +605,7 @@ Return the counter (index) of the innermost DO LOOP
 ID.   nfa ---                                                                  
 Show the name of the word with name field address nfa.
 
-IF   --- x                                                                     
+IF   --- x n                                                                   
 Start an IF THEN or IF ELSE THEN construction. 
 Runtime: At IF a flag is taken from
 the stack and if it is true the part between IF and ELSE is executed,
@@ -661,7 +665,7 @@ Add a literal to the current definition.
 LOADLINE   --- addr                                                            
 This variable holds the line number in the file being included.
 
-LOOP   x ---                                                                   
+LOOP   x n---                                                                  
 End a DO LOOP.
 Runtime: Add 1 to the count and if it is equal to the limit leave the loop.
 
@@ -828,7 +832,7 @@ REFILL   --- f
 Refill the current input source when it is exhausted. f is
 true if it was successfully refilled.
 
-REPEAT   x1 x2 ---                                                             
+REPEAT   x1 n1 x2 n2 ---                                                       
 part of BEGIN WHILE REPEAT construction.
 
 REPOSITION-FILE   ud fid --- ior                                               
@@ -944,7 +948,7 @@ Swap the two top items on the stack.
 SYSTEM   c-addr u --- ior                                                      
 Execute a the string at c-addr with length u as a system command.
 
-THEN   x ---                                                                   
+THEN   x n ---                                                                 
 End an IF THEN or IF ELSE THEN construction.
 
 THROW   n ---                                                                  
@@ -993,7 +997,7 @@ and remainder.
 UNLOOP   ---                                                                   
 Remove one set of loop parameters from the return stack. 
 
-UNTIL   x ---                                                                  
+UNTIL   x n ---                                                                
 Form a loop with matching BEGIN. 
 Runtime: A flag is take from the stack
 each time UNTIL is encountered and the loop iterates until it is nonzero. 
