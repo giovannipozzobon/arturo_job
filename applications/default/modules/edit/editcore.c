@@ -39,7 +39,7 @@ static void EDT_CursorLeft(void)
     EDT_BufEndLine();
     EDT.curline_pos=EDT.curline_len;
     EDT_AdjustTop(false);
-  }    
+  }
 }
 
 static void EDT_CursorRight(void)
@@ -57,7 +57,7 @@ static void EDT_CursorRight(void)
     EDT_BufAdjustCol();
     EDT_BufStartLine();
     EDT.curline_pos=0;
-    EDT_AdjustTop(false);    
+    EDT_AdjustTop(false);
   }
 }
 
@@ -70,7 +70,7 @@ static void EDT_CursorUp(void)
     EDT_BufPrevLine();
     EDT_BufAdjustCol();
     EDT_AdjustTop(false);
-  }    
+  }
 }
 
 static void EDT_CursorDown(void)
@@ -82,7 +82,7 @@ static void EDT_CursorDown(void)
     EDT_BufNextLine();
     EDT_BufAdjustCol();
     EDT_AdjustTop(false);
-  }    
+  }
 }
 
 static void EDT_Delete(void)
@@ -112,9 +112,10 @@ static void EDT_BackSpace(void)
     EDT_BufEndLine();
     EDT.curline_pos=EDT.curline_len;
     EDT_BufJoinLines();
-    EDT_AdjustTop(true);    
+    EDT_AdjustTop(true);
   }
 }
+
 static void EDT_NewLine(void)
 {
   if (EDT.gap_start < EDT.gap_end-1) {
@@ -133,6 +134,7 @@ static void EDT_InsertChar(int c)
   EDT.cursor_col_max=0;
   EDT_RenderCurrentLine();
 }
+
 static void EDT_CutLine(bool fContinue)
 {
   if (!fContinue) {
@@ -151,6 +153,7 @@ static void EDT_CutLine(bool fContinue)
     EDT_RenderCurrentLine();
   }
 }
+
 static void EDT_CopyLine(bool fContinue)
 {
   if (!fContinue) {
@@ -193,9 +196,10 @@ static void EDT_CenterScreen(void)
 static bool EDT_AskSave(void)
 {
   VDUWriteString("Save file: ");
-  EDT_ReadLine(EDT.mem_start+FILENAME_OFFS,MAX_NAME_LENGTH);  
+  EDT_ReadLine(EDT.mem_start+FILENAME_OFFS,MAX_NAME_LENGTH);
   return EDT_SaveFile(EDT.mem_start+FILENAME_OFFS);
 }
+
 static void EDT_GotoLine(void)
 {
   int i,n;
@@ -219,10 +223,11 @@ static void EDT_GotoLine(void)
     }
     EDT_BufAdjustCol();
   }
-  EDT.lineno=n;  
+  EDT.lineno=n;
   EDT.cursor_row=127;
-  EDT_AdjustTop(false);  
+  EDT_AdjustTop(false);
 }
+
 static void EDT_PageUp(void)
 {
   int i;
@@ -252,6 +257,7 @@ static void EDT_PageDown(void)
   if (i>0)EDT_BufAdjustCol();
   EDT_AdjustTop(false);
 }
+
 static void EDT_SearchF(void)
 {
   unsigned int lines_fwd=0;
@@ -272,12 +278,12 @@ static void EDT_SearchF(void)
 	}
 	EDT_BufStartLine();
 	EDT.cursor_col=0;
-	EDT.cursor_col_max=0;	
+	EDT.cursor_col_max=0;
 	EDT_BufAdjustCol();
 	EDT.curline_pos=p-EDT.gap_end;
 	while (p != EDT.gap_end) {
 	  EDT_BufNextChar();
-	}	
+	}
 	EDT.lineno+=lines_fwd;
 	EDT.cursor_row=127;
 	EDT_AdjustTop(true);
@@ -292,6 +298,7 @@ static void EDT_SearchF(void)
   EDT_ClrEOL();
   EDT_RenderCurrentLine();
 }
+
 static void EDT_SearchB(void)
 {
   unsigned int lines_bwd=0;
@@ -312,12 +319,12 @@ static void EDT_SearchB(void)
 	}
 	EDT_BufStartLine();
 	EDT.cursor_col=0;
-	EDT.cursor_col_max=0;	
+	EDT.cursor_col_max=0;
 	EDT_BufAdjustCol();
 	EDT.curline_pos=p-EDT.gap_start;
 	while (p != EDT.gap_start) {
 	  EDT_BufNextChar();
-	}	
+	}
 	EDT.lineno-=lines_bwd;
 	EDT.cursor_row=127;
 	EDT_AdjustTop(true);
@@ -330,8 +337,9 @@ static void EDT_SearchB(void)
   EDT_SetCursor(0,EDT.scr_rows-1);
   VDUWriteString("Not found!");
   EDT_ClrEOL();
-  EDT_RenderCurrentLine();  
+  EDT_RenderCurrentLine();
 }
+
 static void EDT_ReadFile(void)
 {
   unsigned int old_lines = EDT.total_lines;
@@ -344,7 +352,7 @@ static void EDT_ReadFile(void)
   EDT_SetCursor(0,EDT.scr_rows-1);
   VDUWriteString("Read file: ");
   EDT.mem_start[BACKFILENAME_OFFS]=0;
-  EDT_ReadLine(EDT.mem_start+BACKFILENAME_OFFS,MAX_NAME_LENGTH);  
+  EDT_ReadLine(EDT.mem_start+BACKFILENAME_OFFS,MAX_NAME_LENGTH);
   EDT_LoadFile(EDT.mem_start+BACKFILENAME_OFFS);
   added_lines = EDT.total_lines - old_lines;
   for (i=0; i<added_lines; i++) {
@@ -373,11 +381,96 @@ static void EDT_InsertHex(void)
     EDT_InsertChar(d1);
 }
 
+static unsigned int EDT_NextWordLength()
+{
+  unsigned char *p = EDT.gap_end;
+  while (*p > ' ') {
+    p++;
+  }
+  return p-EDT.gap_end;
+}
 
-static char HelpText[] = 
-  "Text editor for Arturo v0.01, Copyright 2025, L.C. Benschop\r\n"
+#define EDT_JUSTIFY_SPACE 0
+#define EDT_JUSTIFY_WORD 1
+#define EDT_JUSTIFY_COLS (SCR_COLS - 1)
+
+static void EDT_Justify(void)
+{
+  unsigned char *ret_p = EDT.gap_end;
+  unsigned int cur_len = 0;
+  bool crossed_cursor = false;
+  unsigned int state = EDT_JUSTIFY_SPACE;
+  /* Find start of paragraph */
+  while (EDT.gap_start - EDT.text_start > 2 &&
+	 (EDT.gap_start[-1] != '\n' || EDT.gap_start[-2] != '\n')) {
+    if (EDT.gap_end[0] == '\n' && ret_p != EDT.gap_end) EDT.lineno--;
+    EDT_BufPrevChar();
+  }
+  /* Reformat paragraph */
+  while (EDT.gap_end < EDT.text_end - 2 &&
+	 (EDT.gap_end[0] != '\n' || EDT.gap_end[1] != '\n')) {
+    if (!crossed_cursor && ret_p <= EDT.gap_end) {
+      crossed_cursor = true;
+      ret_p = EDT.gap_start;
+    }
+    if (state == EDT_JUSTIFY_WORD) {
+      if (EDT.gap_end[0] > ' ') {
+	EDT_BufNextChar();
+	cur_len++;
+      } else {
+	state = EDT_JUSTIFY_SPACE;
+      }
+    } else {
+      if (EDT.gap_end[0] == '\n') {
+	EDT.total_lines--;
+	EDT.gap_end++;
+      } else if (EDT.gap_end[0] <= ' ') {
+	EDT.gap_end++;
+      } else {
+	unsigned int wlen = EDT_NextWordLength();
+	if (cur_len > 0) {
+	  if (cur_len + 1 + wlen > EDT_JUSTIFY_COLS) {
+	    *EDT.gap_start++ = '\n';
+	    EDT.total_lines++;
+	    if (!crossed_cursor) {
+	      EDT.lineno++;
+	    }
+	    cur_len=0;
+	  } else {
+	    *EDT.gap_start++ = ' ';
+	    cur_len++;
+	  }
+	}
+	state = EDT_JUSTIFY_WORD;
+      }
+    }
+  }
+  if (crossed_cursor) {
+    /* Return to the original character */
+    while (EDT.gap_start != ret_p) {
+      EDT_BufPrevChar();
+    }
+  } else {
+    ret_p = EDT.gap_start;
+  }
+  /* Reposition cursor */
+  EDT.is_changed=1;
+  EDT_BufStartLine();
+  EDT.cursor_col=0;
+  EDT.cursor_col_max=0;
+  EDT_BufAdjustCol();
+  EDT.curline_pos=ret_p-EDT.gap_start;
+  while (ret_p != EDT.gap_start) {
+    EDT_BufNextChar();
+  }
+  EDT.cursor_row=127;
+  EDT_AdjustTop(true);
+}
+
+static char HelpText[] =
+  "Text editor for Arturo v0.02, Copyright 2025, L.C. Benschop\r\n"
   "\r\n"
-  "Cursor movement:\r\n"	
+  "Cursor movement:\r\n"
   "Ctrl-B or cursor left, Ctrl-F or cursor right\r\n"
   "Ctrl-P or cursor up, Ctrl-N or cursor down\r\n"
   "Ctrl-Y: page up, Ctrl-V: page down\r\n"
@@ -398,7 +491,7 @@ static char HelpText[] =
   "\r\n"
   "Other:\r\n"
   "Ctrl-R: insert file before current line, Ctrl-O to save file\r\n"
-  "Ctrl-X or ESC: Exit editor (ask to save)\r\n"
+  "Ctrl-X or ESC: Exit editor (ask to save) Ctrl-J Justify paragraph\r\n"
   "Ctrl-T followed by two hex digits: insert special character\r\n"
   "\r\n"
   "Press any key to return to editor.";
@@ -415,7 +508,7 @@ static void EDT_ShowHelp(void)
 
 /* Main function of the editor.
    Pre: EDT.mem_start start of memory area.
-        EDT.mem_end end of memory area.
+	EDT.mem_end end of memory area.
 	EDT.mem_start+FILENAME_OFFS: null terminated string filename to edit
 */
 void EDT_EditCore(void)
@@ -438,7 +531,7 @@ void EDT_EditCore(void)
   EDT.total_lines = 0;
   EDT.cut_lines = 0;
   EDT_LoadConfig("/edit.cfg");
-  
+
   EDT_InitScreen();
   EDT_LoadFile(EDT.mem_start+FILENAME_OFFS);
   EDT.top_line = EDT.gap_start;
@@ -482,6 +575,9 @@ void EDT_EditCore(void)
       break;
     case 9:
       EDT_InsertChar(9);
+      break;
+    case 10:
+      EDT_Justify();
       break;
     case 11:
       EDT_CutLine(fCutContinue);
@@ -533,7 +629,7 @@ void EDT_EditCore(void)
     case 23:
       EDT_SearchF();
       break;
-    case 24:      
+    case 24:
     case 27:
       VDUWrite(12);
       if (EDT.is_changed) {
