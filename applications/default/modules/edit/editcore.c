@@ -1,5 +1,5 @@
 /* Nano-style editor
-   Copyright 2025, L.C. Benschop, Eindhoven, The Netherlands.
+   Copyright 2025, L.C. Benschop, Vught, The Netherlands.
    MIT license
 */
 
