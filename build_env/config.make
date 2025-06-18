@@ -17,8 +17,8 @@
 #
 #       Set these accordingly. 
 #
-export PICO_SDK_PATH := /aux/builds/pico-sdk/
-export PICO_DVI_PATH := /aux/builds/PicoDVI/
+export PICO_SDK_PATH := /Users/giovanni.pozzobon/Documents/pico/pico-sdk
+export PICO_DVI_PATH := /Users/giovanni.pozzobon/Documents/GitHub/rp2040_pico_job/PicoDVI
 #
 #       Directory the App is in.
 #

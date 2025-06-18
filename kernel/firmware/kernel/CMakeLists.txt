@@ -17,12 +17,13 @@
 # ***************************************************************************************
 
 file(GLOB_RECURSE APP_C_SOURCES "${APPLICATION_DIRECTORY}/*.c")
-file(GLOB_RECURSE INTERNAL_C_SOURCES "internal/*.[cS]")
+file(GLOB_RECURSE INTERNAL_C_SOURCES "internal/*.c")
+file(GLOB_RECURSE INTERNAL_S_SOURCES "internal/*.S")
 file(GLOB_RECURSE SUPPORT_C_SOURCES "support/*.c")
 
 add_executable(kernel
 	main.c 
-	${APP_C_SOURCES} ${INTERNAL_C_SOURCES} ${SUPPORT_C_SOURCES} ${LIBRARY_C_SOURCES}
+	${APP_C_SOURCES} ${INTERNAL_C_SOURCES} ${INTERNAL_S_SOURCES} ${SUPPORT_C_SOURCES} ${LIBRARY_C_SOURCES}
 )
 
 #file(GLOB_RECURSE LIBRARY_C_SOURCES "${LIBRARY_DIRECTORY}/*.c")
