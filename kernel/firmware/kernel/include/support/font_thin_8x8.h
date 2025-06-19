@@ -15,7 +15,14 @@
 #define _IMG_ASSET_SECTION ".data"
 #endif
 
+#ifdef __APPLE__
+// macOS (Mach-O): niente attribute section
+static const char font_8x8[] = {
+#else
+// ARM embedded (ELF): usa l'attributo section
 static const char __attribute__((aligned(4), section(_IMG_ASSET_SECTION ".font_8x8"))) font_8x8[] = {
+#endif
+
 
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //   
     0x10, 0x10, 0x10, 0x10, 0x10, 0x00, 0x10, 0x00, // ! 

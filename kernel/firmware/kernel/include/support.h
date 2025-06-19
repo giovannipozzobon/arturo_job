@@ -17,7 +17,11 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include <string.h>
-#include <malloc.h>
+#if defined(__linux__) || defined(_WIN32)
+  #include <malloc.h>
+#else
+  #include <stdlib.h>
+#endif
 
 #include "support/memory.h"
 #include "support/kbd_codes.h"

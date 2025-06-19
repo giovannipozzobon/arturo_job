@@ -19,7 +19,7 @@ CC = gcc
 PYTHON = python3
 RUBY = ruby
 MAKEFLAGS = --no-print-directory
-CFLAGS = -Wall -Werror -O2 -fmax-errors=5 -Wno-unused-function -Wno-unused-variable
+CFLAGS = -Wall -Werror -O2 -Wno-unused-function -Wno-unused-variable #-fmax-errors=5
 LDFLAGS = -fmax-errors=5
 
 # *******************************************************************************************
